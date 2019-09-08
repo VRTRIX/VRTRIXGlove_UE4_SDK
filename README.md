@@ -18,7 +18,13 @@ This repository contains the VRTRIX Glove UE4 Plugin, which includes assets that
 ## Support
 - VRTRIXGlove_UE4_SDK supports UE4.18 and up, Window 10 OS**
 
+- Before using this UE4 SDK, please install the [VRTRIX client software][driver] first to install hardwaere drivers properly.
+
+- For detailed documentation about how to use this SDK, please checek the [doc] file.
+
 - Note that this repository may contains code for work-in-progress modules, tentative modules, or older modules that may be unsupported.We recommend using the release version packages available on the [our release page][devsite].
 
 [chinese]: https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/README_CN.md "chinese"
 [devsite]: https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/releases "VRTRIX Glove UE4 Release site"
+[doc]: https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/VRTRIX%20Data%20Glove%20UE4%20SDK%20Tutorial.pdf "VRTRIX Glove UE4 Doc"
+[driver]: https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/tree/master/drivers
