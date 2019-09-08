@@ -20,5 +20,5 @@ This repository contains the VRTRIX Glove UE4 Plugin, which includes assets that
 
 - Note that this repository may contains code for work-in-progress modules, tentative modules, or older modules that may be unsupported.We recommend using the release version packages available on the [our release page][devsite].
 
-[chinese]: https://github.com/VRTRIX/UE4_SDK_VRTRIXDataGlove/blob/master/README_CN.md "chinese"
+[chinese]: https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/README_CN.md "chinese"
 [devsite]: https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/releases "VRTRIX Glove UE4 Release site"
