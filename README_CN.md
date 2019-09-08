@@ -18,7 +18,13 @@ VRTRIX 惯性传感器模块采用九轴传感器（3轴陀螺仪，3轴加速�
 
 - VRTRIXGlove_UE4_SDK 支持 UE4.18 或以上版本, Window 10 OS**
 
+- 在使用此UE4 SDK之前，请先安装[客户端软件][driver]，自动安装好驱动并配置硬件。
+
+- 在开发前，请阅读此UE4 SDK[操作文档][doc]以熟悉开发流程。
+
 - 请注意由于我们不断在更新我们的插件，该github仓库中的内容可能包含有正在开发的模块代码，临时性的代码，或者一些已经废弃的接口，如果进行开发，请直接前往我们github的[release页面][devsite]下载最新的稳定版本UE4插件。
 
 [devsite]:https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/releases "VRTRIX Glove UE4 Plugin Release site"
 [english]: https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/README.md "english"
+[doc]: https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/VRTRIX%20Data%20Glove%20UE4%20SDK%20Tutorial.pdf "VRTRIX Glove UE4 Doc"
+[driver]: https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/tree/master/drivers
