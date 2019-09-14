@@ -62,10 +62,17 @@ void UGloveComponent::BeginPlay()
 
 	for (int i = 0; i < 3; i++) {
 		for (int j= 0; j < 3; j++) {
-			ml_axisoffset.M[j][i] =	LAxisOffset[i][j];
-			mr_axisoffset.M[j][i] = RAxisOffset[i][j];
+			if (HandType == Hand::Left) {
+				ml_axisoffset.M[j][i] =	AxisOffset[i][j];
+			}
+			else {
+				mr_axisoffset.M[j][i] = AxisOffset[i][j];
+			}
 		}
 	}
+	event_gesture_num = Gesture_Event.Num();
+	state_gesture_num = Gesture_NonEvent.Num();
+
 	// ...
 	bIsVREnabled = UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled();
 	if (bIsVREnabled && GetTrackingSystem()) {
@@ -81,15 +88,24 @@ void UGloveComponent::EndPlay(const EEndPlayReason::Type EEndPlayReason)
 
 void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 {
-	int fingerIndex = 0;
-	for (int i = 0; i < VRTRIX::Joint_MAX; ++i) {
-		VRTRIX::EIMUError error = VRTRIX::IMUError_None;
-		double angle = pDataGlove->GetFingerAngle((VRTRIX::Joint)i, error);
-		if (error == VRTRIX::IMUError_None) {
-			FingerBendingAngle[fingerIndex] = (float)angle;
-			fingerIndex++;
-		}
+	VRTRIX::EIMUError error = VRTRIX::IMUError_None;
+	VRTRIX::VRTRIXVector_t offset = { ThumbOffset[0].X, ThumbOffset[0].Y, ThumbOffset[0].Z };
+	pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Proximal, VRTRIX::AlgorithmConfig_ThumbOffset, 0, offset);
+	offset = { ThumbOffset[1].X, ThumbOffset[1].Y, ThumbOffset[1].Z };
+	pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Intermediate, VRTRIX::AlgorithmConfig_ThumbOffset, 0, offset);
+	offset = { ThumbOffset[2].X, ThumbOffset[2].Y, ThumbOffset[2].Z };
+	pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Distal, VRTRIX::AlgorithmConfig_ThumbOffset, 0, offset);
+	pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Proximal, VRTRIX::AlgorithmConfig_ProximalSlerpDown, ThumbProximalSlerp);
+	pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Distal, VRTRIX::AlgorithmConfig_DistalSlerpDown, ThumbMiddleSlerp);
 
+	
+	FingerBendingAngle[0] = pDataGlove->GetFingerBendAngle(VRTRIX::Thumb_Intermediate, error);
+	FingerBendingAngle[1] = pDataGlove->GetFingerBendAngle(VRTRIX::Index_Intermediate, error);
+	FingerBendingAngle[2] = pDataGlove->GetFingerBendAngle(VRTRIX::Middle_Intermediate, error);
+	FingerBendingAngle[3] = pDataGlove->GetFingerBendAngle(VRTRIX::Ring_Intermediate, error);
+	FingerBendingAngle[4] = pDataGlove->GetFingerBendAngle(VRTRIX::Pinky_Intermediate, error);
+
+	for (int i = 0; i < VRTRIX::Joint_MAX; ++i) {
 		FQuat quat = { pose.imuData[i].qx, pose.imuData[i].qy,pose.imuData[i].qz,pose.imuData[i].qw};
 
 		FVector offset_vec = (pose.type == VRTRIX::Hand_Left) ?
@@ -99,11 +115,11 @@ void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 		
 		if (!bIsVREnabled) {
 			if (pose.type == VRTRIX::Hand_Left && !bIsLOffsetCal && i == (int)VRTRIX::Wrist_Joint && quat != FQuat::Identity) {
-				initialPoseOffset = LInitialPoseOffset.Quaternion() * quat.Inverse();
+				initialPoseOffset = InitialPoseOffset.Quaternion() * quat.Inverse();
 				bIsLOffsetCal = true;
 			}
 			else if (pose.type == VRTRIX::Hand_Right && !bIsROffsetCal && i == (int)VRTRIX::Wrist_Joint && quat != FQuat::Identity) {
-				initialPoseOffset = RInitialPoseOffset.Quaternion() * quat.Inverse();
+				initialPoseOffset = InitialPoseOffset.Quaternion() * quat.Inverse();
 				bIsROffsetCal = true;
 			}
 		}
@@ -116,7 +132,7 @@ void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 			            LWristTrackerPitchOffset = FQuat(FVector::ForwardVector, FMath::DegreesToRadians(tracker_rot.Roll + 90.0f) );
 						bIsLOffsetCal = true;
 					}
-					FQuat target =  tracker_rot.Quaternion() * LWristTrackerPitchOffset * LWristTrackerRotOffset.Quaternion();
+					FQuat target =  tracker_rot.Quaternion() * LWristTrackerPitchOffset * WristTrackerRotOffset.Quaternion();
 					initialPoseOffset = target * quat.Inverse();
 				}
 			}
@@ -128,22 +144,15 @@ void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 			            RWristTrackerPitchOffset = FQuat(FVector::ForwardVector, FMath::DegreesToRadians(tracker_rot.Roll - 90.0f)); 
 						bIsROffsetCal = true;
 					}
-					FQuat target =  tracker_rot.Quaternion() * RWristTrackerPitchOffset * RWristTrackerRotOffset.Quaternion();
+					FQuat target =  tracker_rot.Quaternion() * RWristTrackerPitchOffset * WristTrackerRotOffset.Quaternion();
 					initialPoseOffset = target * quat.Inverse();
 				}
 			}
-		}
-		
-		if (pose.type == VRTRIX::Hand_Left) {
-			rotation[i] = (i == (int)VRTRIX::Wrist_Joint) ? 
-					(initialPoseOffset * quat).Rotator() :
-					(initialPoseOffset * quat * LWristFingerOffset.Quaternion()).Rotator();
-		}
-		else if (pose.type == VRTRIX::Hand_Right) {
-			rotation[i] = (i == (int)VRTRIX::Wrist_Joint) ? 
-					(initialPoseOffset * quat).Rotator() :
-					(initialPoseOffset * quat * RWristFingerOffset.Quaternion()).Rotator();
-		}
+		}	
+
+		rotation[i] = (i == (int)VRTRIX::Wrist_Joint) ? 
+				(initialPoseOffset * quat).Rotator() :
+				(initialPoseOffset * quat * WristFingerOffset.Quaternion()).Rotator();
 
 		if (ShowDebugInfo) {
 			UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("Index %d: %f, %f, %f, %f"), i, quat.X, quat.Y, quat.Z, quat.W);
@@ -274,28 +283,25 @@ void UGloveComponent::GetTrackerIndex()
 
 FTransform UGloveComponent::ApplyTrackerOffset()
 {
-	FVector offset = FVector(0,0,0);
 	FRotator tracker_rot;
 	FVector tracker_loc;
 	IMotionController* SteamMotionController = GetSteamMotionController();
 	
 	switch (type) {
 	case(VRTRIX::Hand_Left): {
-		offset = LWristTrackerOffset;
 		if (!USteamVRFunctionLibrary::GetTrackedDevicePositionAndOrientation(m_LHTrackerIndex, tracker_loc, tracker_rot)) {
 			return FTransform::Identity;
 		}
 		break;
 	}
 	case(VRTRIX::Hand_Right): {
-		offset = RWristTrackerOffset;
 		if (!USteamVRFunctionLibrary::GetTrackedDevicePositionAndOrientation(m_RHTrackerIndex, tracker_loc, tracker_rot)) {
 			return FTransform::Identity;
 		}
 		break;
 	}
 	}
-	FVector new_positon = tracker_loc + tracker_rot.Quaternion() * offset;
+	FVector new_positon = tracker_loc + tracker_rot.Quaternion() * WristTrackerOffset;
 	return FTransform(tracker_rot, new_positon, FVector(1, 1, 1));
 }
 
@@ -315,12 +321,167 @@ EControllerHand UGloveComponent::MapHandtoEControllerHand()
 	return hand;
 }
 
+void UGloveComponent::Calculate_Gesture_Event()
+{
+	int gesture_index = 0;
+	// Gesture 0
+	if (gesture_index<event_gesture_num)
+	{
+		if(Gesture_Event[gesture_index].Gesture_State)
+		{		
+			if (!Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+			{
+				Gesture_Released_0.Broadcast();
+			}
+		}
+		else if(Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+		{
+			Gesture_Triggered_0.Broadcast();
+		}
+		gesture_index++;
+	}
+	else { return; }
+	// Gesture 1
+	if (gesture_index<event_gesture_num)
+	{
+		if (Gesture_Event[gesture_index].Gesture_State)
+		{
+			if (!Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+			{
+				Gesture_Released_1.Broadcast();
+			}
+		}
+		else if (Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+		{
+			Gesture_Triggered_1.Broadcast();
+		}
+		gesture_index++;
+	}
+	else { return; }
+	// Gesture 2
+	if (gesture_index<event_gesture_num)
+	{
+		if (Gesture_Event[gesture_index].Gesture_State)
+		{
+			if (!Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+			{
+				Gesture_Released_2.Broadcast();
+			}
+
+		}
+		else if (Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+		{
+			Gesture_Triggered_2.Broadcast();
+		}
+		gesture_index++;
+	}
+	else { return; }
+	// Gesture 3
+	if (gesture_index<event_gesture_num)
+	{
+		if (Gesture_Event[gesture_index].Gesture_State)
+		{
+			if (!Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+			{
+				Gesture_Released_3.Broadcast();
+			}
+
+		}
+		else if (Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+		{
+			Gesture_Triggered_3.Broadcast();
+		}
+		gesture_index++;
+	}
+	else { return; }
+	// Gesture 4
+	if (gesture_index<event_gesture_num)
+	{
+		if (Gesture_Event[gesture_index].Gesture_State)
+		{
+			if (!Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+			{
+				Gesture_Released_4.Broadcast();
+			}
+
+		}
+		else if (Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+		{
+			Gesture_Triggered_4.Broadcast();
+		}
+		gesture_index++;
+	}
+	else { return; }
+	// Gesture 5
+	if (gesture_index<event_gesture_num)
+	{
+		if (Gesture_Event[gesture_index].Gesture_State)
+		{
+			if (!Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+			{
+				Gesture_Released_5.Broadcast();
+			}
+
+		}
+		else if (Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+		{
+			Gesture_Triggered_5.Broadcast();
+		}
+		gesture_index++;
+	}
+	else { return; }
+	// Gesture 6
+	if (gesture_index<event_gesture_num)
+	{
+		if (Gesture_Event[gesture_index].Gesture_State)
+		{
+			if (!Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+			{
+				Gesture_Released_6.Broadcast();
+			}
+
+		}
+		else if (Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+		{
+			Gesture_Triggered_6.Broadcast();
+		}
+		gesture_index++;
+	}
+	else { return; }
+	// Gesture 7
+	if (gesture_index<event_gesture_num)
+	{
+		if (Gesture_Event[gesture_index].Gesture_State)
+		{
+			if (!Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+			{
+				Gesture_Released_7.Broadcast();
+			}
+		}
+		else if (Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+		{
+			Gesture_Triggered_7.Broadcast();
+		}
+		gesture_index++;
+	}
+	else { return; }
+}
+
+void UGloveComponent::Calculate_Gesture_State()
+{
+	for (int gesture_index = 0; gesture_index < state_gesture_num; gesture_index++)
+	{
+		Gesture_NonEvent[gesture_index].TriggerPositionCheck(FingerBendingAngle);
+	}
+}
+
 // Called every frame
 void UGloveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 	// ...
+	UGloveComponent::Calculate_Gesture_Event();
+	UGloveComponent::Calculate_Gesture_State();
 }
 
 static vr::ETrackedDeviceProperty VREnumToString(const FString& enumName, uint8 value)
@@ -471,27 +632,30 @@ void UGloveComponent::GetVRDevicePropertyUInt64(EVRDeviceProperty_UInt64 Propert
 #endif
 }
 
-//void UGloveComponent::PoseToOrientationAndPosition(const vr::HmdMatrix34_t& InPose, const float WorldToMetersScale, FQuat& OutOrientation, FVector& OutPosition) const
-//{
-//	FMatrix Pose = ToFMatrix(InPose);
-//	if (!((FMath::Abs(1.f - Pose.GetScaledAxis(EAxis::X).SizeSquared()) <= KINDA_SMALL_NUMBER) && (FMath::Abs(1.f - Pose.GetScaledAxis(EAxis::Y).SizeSquared()) <= KINDA_SMALL_NUMBER) && (FMath::Abs(1.f - Pose.GetScaledAxis(EAxis::Z).SizeSquared()) <= KINDA_SMALL_NUMBER)))
-//	{
-//		// When running an oculus rift through steamvr the tracking reference seems to have a slightly scaled matrix, about 99%.  We need to strip that so we can build the quaternion without hitting an ensure.
-//		Pose.RemoveScaling(KINDA_SMALL_NUMBER);
-//	}
-//	FQuat Orientation(Pose);
-//
-//	OutOrientation.X = -Orientation.Z;
-//	OutOrientation.Y = Orientation.X;
-//	OutOrientation.Z = Orientation.Y;
-//	OutOrientation.W = -Orientation.W;
-//
-//	FVector Position = ((FVector(-Pose.M[3][2], Pose.M[3][0], Pose.M[3][1]) - BaseOffset) * WorldToMetersScale);
-//	OutPosition = BaseOrientation.Inverse().RotateVector(Position);
-//
-//	OutOrientation = BaseOrientation.Inverse() * OutOrientation;
-//	OutOrientation.Normalize();
-//}
+bool FMyGesture::TriggerPositionCheck(TArray<float> Current_Position)
+{
+	int upper_num = this->Upper_bound.Num() - 1;
+	for (; upper_num >= 0; upper_num--)
+	{
+		//if any finger's angle go up cross upper bound, set Position State indicator to fasle,return false for check function
+		if ((Current_Position[upper_num] > this->Upper_bound[upper_num]) && (this->Upper_bound[upper_num] != 0))
+		{
+			this->Gesture_State = false;
+			return false;
+		}
+	}
 
-
-
+	int lower_num = this->Lower_bound.Num() - 1;
+	for (; lower_num >= 0; lower_num--)
+	{
+		//if any finger's angle go up cross upper bound, set Position State indicator to fasle,return false for check function
+		if ((Current_Position[lower_num] < this->Lower_bound[lower_num]) && (this->Lower_bound[lower_num] != 0))
+		{
+			this->Gesture_State = false;
+			return false;
+		}
+	}
+	// Position check for all fingers pass, set Position State indicator to true,return true for check function
+	this->Gesture_State = true;
+	return true;
+}

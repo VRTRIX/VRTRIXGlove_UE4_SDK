@@ -241,7 +241,6 @@ USTRUCT(BlueprintType, Blueprintable)//"BlueprintType" is essential to include
 struct FMyGesture
 {
 	GENERATED_BODY()
-
     public:
 	//The Lower Bound  position for this Gesture.Number indicate the angle between fingers and palm.Default O means don't care for the corresponding Finger. 
 	//Sequence: Thumb,Index,Middle,Ring,Pinky
@@ -396,34 +395,30 @@ public:
 		bool ShowDebugInfo = false;
 	//Rotating Coordinate offset between model and IMU.Only if using your own hand-mesh &your hand-rotation vs mesh-rotation not match, adjust this value to re-match them.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
-		TArray<FVector> LAxisOffset = { FVector(0, 1, 0), FVector(0, 0, -1), FVector(-1, 0, 0) };
-	//Rotating Coordinate offset between model and IMU.Only if using your own hand-mesh &your hand-rotation vs mesh-rotation not match, adjust this value to re-match them.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
-		TArray<FVector> RAxisOffset = { FVector(0, -1, 0), FVector(0, 0, 1), FVector(-1, 0, 0) };
+		TArray<FVector> AxisOffset = { FVector(0, 1, 0), FVector(0, 0, -1), FVector(-1, 0, 0) };
 	//The original pose global rotation.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
-		FRotator LInitialPoseOffset = FRotator(90, 0, 180);
-	//The original pose global rotation.
+		FRotator InitialPoseOffset = FRotator(90, 0, 180);
+
+	//The model thumb offset.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
-		FRotator RInitialPoseOffset = FRotator(-90, -90, 90);
+		TArray<FVector> ThumbOffset = { FVector(0, 0, -24), FVector(0, 0, -12), FVector(0, 0, -8) };
+	//The model thumb proximal slerp.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		float ThumbProximalSlerp = 0.55;
+	//The model thumb middle slerp.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		float ThumbMiddleSlerp = 0.75;
+
 	//The model finger & wrist offset.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
-		FRotator LWristFingerOffset = FRotator(90, -90, 0);
-	//The model finger & wrist offset.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
-		FRotator RWristFingerOffset = FRotator(-90, -90, 0);
+		FRotator WristFingerOffset = FRotator(90, -90, 0);
 	//The wrist tracker offset
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
-		FVector LWristTrackerOffset = FVector(-4.5f, 0, 0);
+		FVector WristTrackerOffset = FVector(-4.5f, 0, 0);
 	//The wrist tracker offset
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
-		FVector RWristTrackerOffset = FVector(-4.5f, 0, 0);
-	//The wrist tracker offset
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
-		FRotator LWristTrackerRotOffset = FRotator(180.0f, -90.0f, 0);
-	//The wrist tracker offset
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
-		FRotator RWristTrackerRotOffset = FRotator(180.0f, -90.0f, 0);
+		FRotator WristTrackerRotOffset = FRotator(180.0f, -90.0f, 0);
 
 	//Customized Gestures define, gesture state will be updated every frame and can be accessed anytime.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
