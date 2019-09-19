@@ -74,8 +74,7 @@ void UGloveComponent::BeginPlay()
 	state_gesture_num = Gesture_NonEvent.Num();
 
 	// ...
-	bIsVREnabled = UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled();
-	if (GetTrackingSystem()) {
+	if (bIsVREnabled && GetTrackingSystem()) {
 		GetTrackerIndex();
 	}
 	OnConnectGloves();

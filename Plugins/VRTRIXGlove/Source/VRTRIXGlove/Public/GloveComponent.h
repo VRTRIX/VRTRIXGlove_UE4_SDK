@@ -390,6 +390,9 @@ public:
 	//Advanced mode to unlock finger yaw rotation.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
 		bool AdvancedMode = false;
+	//Toggle VR Mode
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		bool bIsVREnabled = false;
 	//Show debug info
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
 		bool ShowDebugInfo = false;
@@ -448,7 +451,6 @@ private:
 	bool bIsROffsetCal = false;
 	vr::IVRSystem * VRSystem;
 	vr::IVRCompositor* VRCompositor;
-	bool bIsVREnabled = false;
 	FVector m_LTrackerLoc;
 	FVector m_RTrackerLoc;
 	FRotator m_LTrackerRot;
