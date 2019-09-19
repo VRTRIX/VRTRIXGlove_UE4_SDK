@@ -23,7 +23,7 @@ static FORCEINLINE FMatrix ToFMatrix(const vr::HmdMatrix34_t& tm)
 		FPlane(tm.m[0][3], tm.m[1][3], tm.m[2][3], 1.0f));
 }
 
-IMotionController* GetSteamMotionController()
+IMotionController* UGloveComponent::GetSteamMotionController()
 {
 	static FName DeviceTypeName(TEXT("SteamVRController"));
 	TArray<IMotionController*> MotionControllers = IModularFeatures::Get().GetModularFeatureImplementations<IMotionController>(IMotionController::GetModularFeatureName());
@@ -75,9 +75,9 @@ void UGloveComponent::BeginPlay()
 
 	// ...
 	bIsVREnabled = UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled();
-	if (bIsVREnabled && GetTrackingSystem()) {
+	if (GetTrackingSystem()) {
 		GetTrackerIndex();
-	};
+	}
 	OnConnectGloves();
 }
 
@@ -232,13 +232,14 @@ bool UGloveComponent::GetTrackingSystem()
 {
 	if (!GEngine->XRSystem.IsValid() || (GEngine->XRSystem->GetSystemName() != SteamVRSystemName))
 	{
+		UE_LOG(LogVRTRIXGlovePlugin, Error, TEXT("[GLOVES PULGIN] Unable to get tracking system."));
 		return false;
 	}
 
 	vr::HmdError HmdErr;
 	VRSystem = (vr::IVRSystem*)vr::VR_GetGenericInterface(vr::IVRSystem_Version, &HmdErr);
 	VRCompositor = (vr::IVRCompositor*)vr::VR_GetGenericInterface(vr::IVRCompositor_Version, &HmdErr);
-
+	if(VRSystem == NULL) UE_LOG(LogVRTRIXGlovePlugin, Error, TEXT("[GLOVES PULGIN] Unable to get tracking system."));
 	return (VRSystem != NULL);
 }
 void UGloveComponent::OnTriggerHaptics()

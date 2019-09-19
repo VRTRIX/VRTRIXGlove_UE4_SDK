@@ -68,11 +68,14 @@ public class VRTRIXGlove : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-			"SteamVR",
-			"OpenVR",
-			"SteamVRController"
+            "SteamVR",
+            "OpenVR",
 			});
 		}
 
+        if (Target.Platform == UnrealTargetPlatform.Win64)
+        {
+           RuntimeDependencies.Add(new RuntimeDependency(Path.Combine(ModuleDirectory, "../ThirdParty/VRTRIXGloveLibrary/x64/Release/", "VRTRIXIMU.dll")));
+        }
 	}
 }

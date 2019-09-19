@@ -17,22 +17,18 @@ void FVRTRIXGloveModule::StartupModule()
 
 	// Add on the relative location of the third party dll and load it
 	FString LibraryPath;
+
 #if PLATFORM_WINDOWS
-	LibraryPath = FPaths::Combine(*BaseDir, TEXT("Binaries/ThirdParty/VRTRIXGloveLibrary/Win64/VRTRIXIMU.dll"));
+	LibraryPath = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/VRTRIXGloveLibrary/x64/Release/VRTRIXIMU.dll"));
 #elif PLATFORM_MAC
-    LibraryPath = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/VRTRIXGloveLibrary/Mac/Release/libExampleLibrary.dylib"));
+    LibraryPath = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/VRTRIXGloveLibrary/Mac/Release/VRTRIXIMU.dylib"));
 #endif // PLATFORM_WINDOWS
 
-	ExampleLibraryHandle = !LibraryPath.IsEmpty() ? FPlatformProcess::GetDllHandle(*LibraryPath) : nullptr;
+	GloveLibraryHandle = !LibraryPath.IsEmpty() ? FPlatformProcess::GetDllHandle(*LibraryPath) : nullptr;
 
-	if (ExampleLibraryHandle)
+	if (!GloveLibraryHandle)
 	{
-		// Call the test function in the third party library that opens a message box
-		//ExampleLibraryFunction();
-	}
-	else
-	{
-		FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ThirdPartyLibraryError", "Failed to load example third party library"));
+		FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ThirdPartyLibraryError", "Failed to load data glove third party library"));
 	}
 }
 
@@ -42,8 +38,8 @@ void FVRTRIXGloveModule::ShutdownModule()
 	// we call this function before unloading the module.
 
 	// Free the dll handle
-	FPlatformProcess::FreeDllHandle(ExampleLibraryHandle);
-	ExampleLibraryHandle = nullptr;
+	FPlatformProcess::FreeDllHandle(GloveLibraryHandle);
+	GloveLibraryHandle = nullptr;
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -12,12 +12,13 @@
 	"SupportURL": "",
 	"CanContainContent": true,
 	"IsBetaVersion": false,
-	"Installed": false,
+	"Installed": true,
   "Modules": [
     {
       "Name": "VRTRIXGlove",
-      "Type": "Developer",
-      "LoadingPhase": "Default"
+      "Type": "Runtime",
+      "WhitelistPlatforms" : ["Win64"],
+      "LoadingPhase": "PostConfigInit"
     }
   ],
 

@@ -455,6 +455,10 @@ private:
 	FRotator m_RTrackerRot;
 	int m_LHTrackerIndex;
 	int m_RHTrackerIndex;
+
+private:
+	IMotionController* GetSteamMotionController();
+
 };
 
 class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler
