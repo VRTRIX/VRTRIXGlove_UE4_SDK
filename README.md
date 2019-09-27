@@ -15,6 +15,39 @@ This repository contains the VRTRIX Glove UE4 Plugin, which includes assets that
 
 **Please note that this repo is based on UE 4.18, if you are using other UE version, please rebuild the plugin yourself from source or download the pre-build plugins in [our release page][devsite].  Currently, UE4.18-UE4.21 pre-build plugins are available for download.**
 
+# Demo Scenes
+Following are the demo scenes that driving hand model in Unity with VRTRIX Data Gloves.
+
+## 3D Demonstration
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/3D_pose.gif)
+
+## OK Pose Demonstration
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/OK_pose.gif)
+
+## Thumb Pose Demonstration
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/thumb_pose.gif)
+
+## Finger Heading Demonstration
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/yaw_pose.gif)
+
+## Gesture Recognition Demonstration
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/gesture.gif)
+
+## 6DOF with precise finger tracking in VR
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/vr_pose.gif)
+
+## Teleport in VR with hand gesture recognition
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/teleport.gif)
+
+## Grab/Throwing with gravity enabled
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/grab.gif)
+
+## Pitching
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/pitching.gif)
+
+## UI & Buttons
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/button.gif)
+
 ## Support
 - VRTRIXGlove_UE4_SDK supports UE4.18 and up, Window 10 OS**
 
