@@ -15,5 +15,8 @@
 			"Name": "VRTRIXGlove",
 			"Enabled": true
 		}
+	],
+	"TargetPlatforms": [
+		"WindowsNoEditor"
 	]
 }

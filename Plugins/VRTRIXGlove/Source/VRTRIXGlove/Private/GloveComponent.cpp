@@ -97,6 +97,9 @@ void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 	pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Proximal, VRTRIX::AlgorithmConfig_ProximalSlerpDown, ThumbProximalSlerp);
 	pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Distal, VRTRIX::AlgorithmConfig_DistalSlerpDown, ThumbMiddleSlerp);
 
+	pDataGlove->AlgorithmTuning(error, VRTRIX::Wrist_Joint, VRTRIX::AlgorithmConfig_FingerSpcaing, FingerSpacing);
+	pDataGlove->AlgorithmTuning(error, VRTRIX::Wrist_Joint, VRTRIX::AlgorithmConfig_FinalFingerSpacing, FinalFingerSpacing);
+
 	
 	FingerBendingAngle[0] = pDataGlove->GetFingerBendAngle(VRTRIX::Thumb_Intermediate, error);
 	FingerBendingAngle[1] = pDataGlove->GetFingerBendAngle(VRTRIX::Index_Intermediate, error);

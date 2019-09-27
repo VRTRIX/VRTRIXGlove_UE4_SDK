@@ -29,9 +29,7 @@ namespace VRTRIX {
 		InitMode_None = 0,
 		InitMode_Normal = 1,
 		InitMode_Advanced = 2,
-		InitMode_VR = 3,
-		InitMode_GloveStatusChecking = 4,
-		InitMode_TrackerStatusChecking = 5,
+		InitMode_GloveStatusChecking = 3,
 	};
 
 
@@ -87,8 +85,6 @@ namespace VRTRIX {
 		HandStatus_BatteryFull,
 		HandStatus_Paired,
 		HandStatus_MagAbnormal,
-		HandStatus_TrackerConnected,
-		HandStatus_TrackerDisconnected,
 	};
 
 
@@ -102,7 +98,6 @@ namespace VRTRIX {
 		InitError_ConnectionRefused = 3,
 		InitError_ConnectionReset = 4,
 		InitError_NoSuchDevice = 5,
-		InitError_InitTrackingSysFailed = 6,
 	};
 
     //! IMU error enum.
@@ -119,21 +114,6 @@ namespace VRTRIX {
 		IMUError_PortNotFound = 7,
 		IMUError_PortAccessDenied = 8,
 		IMUError_DataNotValid = 9,
-	};
-
-
-    //! Configuration error enum.
-    /*!	Enum values to pass into methods to identify what kind of IMU error is arised. */
-	enum EConfigError
-	{
-		EConfigError_None = 0,
-		EConfigError_InvalidHand = 1,
-		EConfigError_ExeNotFound = 2,
-		EConfigError_FileOpenFailed = 3,
-		EConfigError_FileWriteFailed = 4,
-		EConfigError_FileRemoveFailed = 5,
-		EConfigError_TrackerDisconnected = 6,
-		EConfigError_VRSysNotInitialized = 7,
 	};
 
 	

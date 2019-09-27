@@ -386,7 +386,7 @@ public:
 		Hand HandType = Hand::Left;
 	//Which hand you want to bond with your model,make sure the receiver for selected hand is connected
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
-		HardwareVersion HardwareVersion = HardwareVersion::DK2;
+		HardwareVersion HardwareVersion = HardwareVersion::PRO;
 	//Advanced mode to unlock finger yaw rotation.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
 		bool AdvancedMode = false;
@@ -405,13 +405,19 @@ public:
 
 	//The model thumb offset.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
-		TArray<FVector> ThumbOffset = { FVector(0, 0, -24), FVector(0, 0, -12), FVector(0, 0, -8) };
+		TArray<FVector> ThumbOffset = { FVector(0, 0, 0), FVector(0, 0, 0), FVector(0, 0, 0) };
 	//The model thumb proximal slerp.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
-		float ThumbProximalSlerp = 0.55;
+		float ThumbProximalSlerp = 0.4;
 	//The model thumb middle slerp.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
-		float ThumbMiddleSlerp = 0.75;
+		float ThumbMiddleSlerp = 0.7;
+	//The model finger spacing when advanced mode is NOT enabled.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		float FingerSpacing = 8;
+	//The model final finger spacing when four fingers are fully bended.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		float FinalFingerSpacing = 2;
 
 	//The model finger & wrist offset.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
@@ -498,24 +504,6 @@ class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler
 		}
 		case(VRTRIX::HandStatus_MagAbnormal): {
 			std::cout << "Magnetic Abnormal Detected!" << std::endl;
-			break;
-		}
-		case(VRTRIX::HandStatus_TrackerConnected): {
-			if (event.type == VRTRIX::Hand_Left) {
-				std::cout << "LH Tracker Connected!" << std::endl;
-			}
-			else if (event.type == VRTRIX::Hand_Right) {
-				std::cout << "RH Tracker Connected!" << std::endl;
-			}
-			break;
-		}
-		case(VRTRIX::HandStatus_TrackerDisconnected): {
-			if (event.type == VRTRIX::Hand_Left) {
-				std::cout << "LH Tracker Disconnected!" << std::endl;
-			}
-			else if (event.type == VRTRIX::Hand_Right) {
-				std::cout << "RH Tracker Disconnected!" << std::endl;
-			}
 			break;
 		}
 		default: break;
