@@ -34,6 +34,9 @@ VRTRIX 惯性传感器模块采用九轴传感器（3轴陀螺仪，3轴加速�
 ## 六自由度VR场景演示（含腕部追踪）
 ![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/vr_pose.gif)
 
+## 手势识别VR场景中实现开枪射击
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/shooting.gif)
+
 ## 手势识别VR场景中实现传送
 ![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/teleport.gif)
 
