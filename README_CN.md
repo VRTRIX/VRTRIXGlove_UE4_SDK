@@ -13,6 +13,38 @@ VRTRIX 惯性传感器模块采用九轴传感器（3轴陀螺仪，3轴加速�
  该插件包含了一些基本功能模块，几个示例场景还有开发所需的一切蓝图。这将很好的帮助开发者上手并快速的在3D或VR环境下进行应用的开发。
 
 **请注意该代码仓库基于UE4.18, 如果使用其他UE版本，请自行根据源码编译对应版本的插件，或者从[release页面][devsite]下载预先编译好的插件。目前我们预编译插件支持UE4.18-UE4.21。**
+# 示例场景
+以下为手部模型在UE4中通过数据手套驱动，实时渲染效果。
+
+## 3D 场景演示
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/3D_pose.gif)
+
+## OK 姿态演示
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/OK_pose.gif)
+
+## 拇指姿态演示
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/thumb_pose.gif)
+
+## 五指航向角张开演示
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/yaw_pose.gif)
+
+## 手势识别演示
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/gesture.gif)
+
+## 六自由度VR场景演示（含腕部追踪）
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/vr_pose.gif)
+
+## 手势识别VR场景中实现传送
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/teleport.gif)
+
+## 手势识别VR场景中实现抓取/投掷
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/grab.gif)
+
+## 手势识别VR场景中实现推动
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/pitching.gif)
+
+## 手势识别VR场景中实现按键点击
+![](https://github.com/VRTRIX/VRTRIXGlove_UE4_SDK/blob/master/docs/gif/button.gif)
 
 ## 支持
 
