@@ -316,6 +316,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "VRTRIX_GLOVES")
 	FTransform ApplyTrackerOffset();
 
+	//Call this function to set wrist parent joint for alignment.
+	UFUNCTION(BlueprintCallable, Category = "VRTRIX_GLOVES")
+	void SetWristAlignment(FRotator alignment);
 	
 	// Gets a String device property
 	UFUNCTION(BlueprintCallable, Category = "VRExpansionFunctions|SteamVR", meta = (bIgnoreSelf = "true", DisplayName = "GetVRDevicePropertyString", ExpandEnumAsExecs = "Result"))
@@ -393,6 +396,9 @@ public:
 	//Toggle VR Mode
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
 		bool bIsVREnabled = false;
+	//Toggle Wrist Alignment
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		bool bIsWristAlignEnabled = false;
 	//Show debug info
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
 		bool ShowDebugInfo = false;
@@ -451,6 +457,7 @@ private:
 	FMatrix ml_axisoffset;
 	FMatrix mr_axisoffset;
 	FQuat initialPoseOffset;
+	FQuat alignmentPose;
 	FQuat LWristTrackerPitchOffset;
 	FQuat RWristTrackerPitchOffset;
 	bool bIsLOffsetCal = false;

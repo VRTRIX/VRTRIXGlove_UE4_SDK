@@ -45,6 +45,7 @@ UGloveComponent::UGloveComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	rotation.Init(FRotator(0, 0, 0), VRTRIX::Joint_MAX);
 	FingerBendingAngle.Init(0.0, 5);
+	alignmentPose = FQuat::Identity;
 	// ...
 }
 
@@ -123,6 +124,10 @@ void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 			else if (pose.type == VRTRIX::Hand_Right && !bIsROffsetCal && i == (int)VRTRIX::Wrist_Joint && quat != FQuat::Identity) {
 				initialPoseOffset = InitialPoseOffset.Quaternion() * quat.Inverse();
 				bIsROffsetCal = true;
+			}
+
+			if (bIsWristAlignEnabled && i == (int)VRTRIX::Wrist_Joint && quat != FQuat::Identity) {
+				initialPoseOffset = alignmentPose * quat.Inverse();
 			}
 		}
 		else {
@@ -306,6 +311,11 @@ FTransform UGloveComponent::ApplyTrackerOffset()
 	}
 	FVector new_positon = tracker_loc + tracker_rot.Quaternion() * WristTrackerOffset;
 	return FTransform(tracker_rot, new_positon, FVector(1, 1, 1));
+}
+
+void UGloveComponent::SetWristAlignment(FRotator alignment)
+{
+	alignmentPose = alignment.Quaternion();
 }
 
 EControllerHand UGloveComponent::MapHandtoEControllerHand()
