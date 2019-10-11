@@ -263,6 +263,8 @@ void UGloveComponent::OrientationAlignment()
 	else {
 		bIsROffsetCal = false;
 	}
+	VRTRIX::EIMUError error;
+	pDataGlove->SoftwareAlign(error);
 }
 
 void UGloveComponent::GetTrackerIndex()
