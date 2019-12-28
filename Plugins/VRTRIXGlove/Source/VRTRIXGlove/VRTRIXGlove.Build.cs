@@ -77,5 +77,10 @@ public class VRTRIXGlove : ModuleRules
         {
            RuntimeDependencies.Add(new RuntimeDependency(Path.Combine(ModuleDirectory, "../ThirdParty/VRTRIXGloveLibrary/x64/Release/", "VRTRIXIMU.dll")));
         }
+
+        else if (Target.Platform == UnrealTargetPlatform.Win32)
+        {
+           RuntimeDependencies.Add(new RuntimeDependency(Path.Combine(ModuleDirectory, "../ThirdParty/VRTRIXGloveLibrary/x86/Release/", "VRTRIXIMU.dll")));
+        }
 	}
 }

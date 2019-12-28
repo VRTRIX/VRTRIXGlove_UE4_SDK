@@ -18,8 +18,12 @@ void FVRTRIXGloveModule::StartupModule()
 	// Add on the relative location of the third party dll and load it
 	FString LibraryPath;
 
-#if PLATFORM_WINDOWS
+#if PLATFORM_WINDOWS && PLATFORM_64BITS
 	LibraryPath = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/VRTRIXGloveLibrary/x64/Release/VRTRIXIMU.dll"));
+
+#elif PLATFORM_WINDOWS 
+	LibraryPath = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/VRTRIXGloveLibrary/x86/Release/VRTRIXIMU.dll"));
+
 #elif PLATFORM_MAC
     LibraryPath = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/VRTRIXGloveLibrary/Mac/Release/VRTRIXIMU.dylib"));
 #endif // PLATFORM_WINDOWS

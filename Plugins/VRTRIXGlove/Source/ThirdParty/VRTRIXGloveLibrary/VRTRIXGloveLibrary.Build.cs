@@ -17,9 +17,13 @@ public class VRTRIXGloveLibrary : ModuleRules
 			// Delay-load the DLL, so we can load it from the right place first
 			PublicDelayLoadDLLs.Add("VRTRIXIMU.dll");
 		}
-        else if (Target.Platform == UnrealTargetPlatform.Mac)
+        else if (Target.Platform == UnrealTargetPlatform.Win32)
         {
-            //PublicDelayLoadDLLs.Add(Path.Combine(ModuleDirectory, "Mac", "Release", "libExampleLibrary.dylib"));
+			// Add the import library
+			PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "x86", "Release"));
+			PublicAdditionalLibraries.Add("VRTRIXIMU.lib");
+			// Delay-load the DLL, so we can load it from the right place first
+			PublicDelayLoadDLLs.Add("VRTRIXIMU.dll");
         }
 	}
 }

@@ -135,6 +135,12 @@ namespace VRTRIX {
 
 	//! Serial port information need for data streaming.
 	struct PortInfo {
+		/*! Baud Rate */
+		int baud_rate;
+
+		/*! Hand Type */
+		HandType type;
+
 		/*! Address of the serial port (this can be passed to the constructor of Serial). */
 		std::string port;
 
@@ -146,12 +152,6 @@ namespace VRTRIX {
 
 		/*! Instance ID */
 		std::string instance_id;
-
-		/*! Baud Rate */
-		int baud_rate;
-
-		/*! Hand Type */
-		HandType type;
 	};
 
 	//! Quaternion data structure used in C++ API.
