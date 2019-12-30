@@ -36,9 +36,9 @@ namespace VRTRIX {
     //! GLOVEVERSION enum.
     /*! Enum values of data gloves hardware version. */
 	enum GLOVEVERSION {
-		DK1,
-		DK2,
-		PRO
+		PRO7,
+		PRO11,
+		PRO12
 	};
 
     //! Joint enum.
@@ -60,7 +60,8 @@ namespace VRTRIX {
 		Pinky_Proximal = 13,
 		Pinky_Intermediate = 14,
 		Pinky_Distal = 15,
-		Joint_MAX = 16
+		Wrist_Joint_Double= 16,
+		Joint_MAX = 17
 	};
 
 
@@ -130,7 +131,8 @@ namespace VRTRIX {
 		AlgorithmConfig_FingerBendDownThreshold = 6,
 		AlgorithmConfig_ThumbOffset = 7,
 		AlgorithmConfig_FinalFingerSpacing = 8,
-		AlgorithmConfig_Max = 9,
+		AlgorithmConfig_ThumbSlerpOffset = 9,
+		AlgorithmConfig_Max = 10,
 	};
 
 	//! Serial port information need for data streaming.

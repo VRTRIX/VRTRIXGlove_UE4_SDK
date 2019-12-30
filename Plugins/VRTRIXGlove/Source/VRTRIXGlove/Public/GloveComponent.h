@@ -40,9 +40,10 @@ enum class Hand : uint8
 UENUM(BlueprintType)		//"BlueprintType" is essential to include
 enum class HardwareVersion : uint8
 {
-	DK1 	UMETA(DisplayName = "DK1"),
-	DK2 	UMETA(DisplayName = "DK2"),
-	PRO		UMETA(DisplayName = "PRO")
+	//DK1 	UMETA(DisplayName = "DK1"),
+	//DK2 	UMETA(DisplayName = "DK2"),
+	//PRO	UMETA(DisplayName = "PRO")
+	PRO11	UMETA(DisplayName = "PRO11")
 };
 
 UENUM()
@@ -304,9 +305,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "VRTRIX_GLOVES")
 	void OnTriggerHaptics();
 
-	//Allign hand's orientation  to Head Mounted Display'sorientation, only need do once after Head Mounted Display'sorientation set up changed
+	//Align hand's orientation  to Head Mounted Display'sorientation, only need do once after Head Mounted Display'sorientation set up changed
 	UFUNCTION(BlueprintCallable, Category = "VRTRIX_GLOVES")
 	void OrientationAlignment();
+
+	//Calibrate thumb's orientation for better performance.
+	UFUNCTION(BlueprintCallable, Category = "VRTRIX_GLOVES")
+	void OKPoseAlignment();
 
 	//Call this function to get tracker device index and identifying lefthand tracker & righthand tracker
 	UFUNCTION(BlueprintCallable, Category = "VRTRIX_GLOVES")
@@ -389,7 +394,7 @@ public:
 		Hand HandType = Hand::Left;
 	//Which hand you want to bond with your model,make sure the receiver for selected hand is connected
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
-		HardwareVersion HardwareVersion = HardwareVersion::PRO;
+		HardwareVersion HardwareVersion = HardwareVersion::PRO11;
 	//Advanced mode to unlock finger yaw rotation.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
 		bool AdvancedMode = false;
@@ -418,6 +423,9 @@ public:
 	//The model thumb middle slerp.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
 		float ThumbMiddleSlerp = 0.7;
+	//The model thumb slerp offset.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FVector ThumbSlerpOffset = FVector(0, 3.0f, 3.5f);
 	//The model finger spacing when advanced mode is NOT enabled.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
 		float FingerSpacing = 8;

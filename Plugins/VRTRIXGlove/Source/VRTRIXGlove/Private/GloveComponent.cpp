@@ -101,7 +101,9 @@ void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 	pDataGlove->AlgorithmTuning(error, VRTRIX::Wrist_Joint, VRTRIX::AlgorithmConfig_FingerSpcaing, FingerSpacing);
 	pDataGlove->AlgorithmTuning(error, VRTRIX::Wrist_Joint, VRTRIX::AlgorithmConfig_FinalFingerSpacing, FinalFingerSpacing);
 
-	
+	VRTRIX::VRTRIXVector_t slerp_offset = { ThumbSlerpOffset.X, ThumbSlerpOffset.Y, ThumbSlerpOffset.Z };
+	pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Proximal, VRTRIX::AlgorithmConfig_ThumbSlerpOffset, 0, slerp_offset);
+
 	FingerBendingAngle[0] = pDataGlove->GetFingerBendAngle(VRTRIX::Thumb_Intermediate, error);
 	FingerBendingAngle[1] = pDataGlove->GetFingerBendAngle(VRTRIX::Index_Intermediate, error);
 	FingerBendingAngle[2] = pDataGlove->GetFingerBendAngle(VRTRIX::Middle_Intermediate, error);
@@ -179,13 +181,9 @@ void UGloveComponent::OnConnectGloves()
 	//Initialize event handler.
 	VRTRIX::IVRTRIXIMUEventHandler* pEventHandler = new CVRTRIXIMUEventHandler();
 	//Initialize data glove.
-	if (HardwareVersion == HardwareVersion::DK1 || HardwareVersion == HardwareVersion::DK2) {
-		pDataGlove = AdvancedMode ? InitDataGlove(eInitError, VRTRIX::InitMode_Advanced, VRTRIX::DK2):
-									InitDataGlove(eInitError, VRTRIX::InitMode_Normal, VRTRIX::DK2);
-	}
-	else if (HardwareVersion == HardwareVersion::PRO) {
-		pDataGlove = AdvancedMode ? InitDataGlove(eInitError, VRTRIX::InitMode_Advanced, VRTRIX::PRO):
-									InitDataGlove(eInitError, VRTRIX::InitMode_Normal, VRTRIX::PRO);
+	if (HardwareVersion == HardwareVersion::PRO11) {
+		pDataGlove = AdvancedMode ? InitDataGlove(eInitError, VRTRIX::InitMode_Advanced, VRTRIX::PRO11):
+									InitDataGlove(eInitError, VRTRIX::InitMode_Normal, VRTRIX::PRO11);
 	}
 
 	if (eInitError != VRTRIX::InitError_None) {
@@ -265,6 +263,12 @@ void UGloveComponent::OrientationAlignment()
 	}
 	VRTRIX::EIMUError error;
 	pDataGlove->SoftwareAlign(error);
+}
+
+void UGloveComponent::OKPoseAlignment()
+{
+	VRTRIX::EIMUError error;
+	pDataGlove->OKPoseAlign(error);
 }
 
 void UGloveComponent::GetTrackerIndex()
