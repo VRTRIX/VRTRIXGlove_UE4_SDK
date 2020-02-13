@@ -160,10 +160,6 @@ void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 		rotation[i] = (i == (int)VRTRIX::Wrist_Joint) ? 
 				(initialPoseOffset * quat).Rotator() :
 				(initialPoseOffset * quat * WristFingerOffset.Quaternion()).Rotator();
-
-		if (ShowDebugInfo) {
-			UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("Index %d: %f, %f, %f, %f"), i, quat.X, quat.Y, quat.Z, quat.W);
-		}
 	}
 	
 	if (ShowDebugInfo) {
