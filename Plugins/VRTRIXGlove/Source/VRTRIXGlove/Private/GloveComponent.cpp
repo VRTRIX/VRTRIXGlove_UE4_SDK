@@ -247,12 +247,14 @@ bool UGloveComponent::GetTrackingSystem()
 }
 void UGloveComponent::OnTriggerHaptics()
 {
+	if (!bIsDataGloveConnected) return;
 	VRTRIX::EIMUError eIMUError;
 	pDataGlove->VibratePeriod(eIMUError, 100);
 }
 
 void UGloveComponent::OrientationAlignment()
 {
+	if (!bIsDataGloveConnected) return;
 	if (type == VRTRIX::Hand_Left) {
 		bIsLOffsetCal = false;
 	}
