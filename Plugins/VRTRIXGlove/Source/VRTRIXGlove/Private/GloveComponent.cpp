@@ -198,11 +198,13 @@ void UGloveComponent::OnConnectGloves()
 	//Register event call back and perform events handling/pose updating.
 	pDataGlove->RegisterIMUDataCallback(pEventHandler, this);
 	//Prepare PortInfo struct and open the data streaming serial port of glove.
-	VRTRIX::PortInfo portInfo = pDataGlove->IdentifyPort(eIMUError, type);
+	VRTRIX::PortInfo portInfo;
+	portInfo.type = type;
+	pDataGlove->OpenPort(eIMUError, portInfo);
 
 	if (eIMUError == VRTRIX::IMUError_None) {
 		//Print out full port information
-		UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] PORT NAME: %s"), *FString(portInfo.port.c_str()));
+		UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] PORT NAME: %s"), *FString(portInfo.port));
 		UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] PORT BAUD RATE: %d"), portInfo.baud_rate);
 
 		////Start data streaming.
