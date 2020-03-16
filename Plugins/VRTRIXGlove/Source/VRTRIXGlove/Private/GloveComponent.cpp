@@ -119,10 +119,12 @@ void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 		if (!bIsVREnabled) {
 			if (pose.type == VRTRIX::Hand_Left && !bIsLOffsetCal && i == (int)VRTRIX::Wrist_Joint && quat != FQuat::Identity) {
 				initialPoseOffset = InitialPoseOffset.Quaternion() * quat.Inverse();
+				UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Left Hand Glove connected to channel: %d"), pose.channel);
 				bIsLOffsetCal = true;
 			}
 			else if (pose.type == VRTRIX::Hand_Right && !bIsROffsetCal && i == (int)VRTRIX::Wrist_Joint && quat != FQuat::Identity) {
 				initialPoseOffset = InitialPoseOffset.Quaternion() * quat.Inverse();
+				UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Right Hand Glove connected to channel: %d"), pose.channel);
 				bIsROffsetCal = true;
 			}
 
@@ -206,6 +208,10 @@ void UGloveComponent::OnConnectGloves()
 		//Print out full port information
 		UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] PORT NAME: %s"), *FString(portInfo.port));
 		UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] PORT BAUD RATE: %d"), portInfo.baud_rate);
+
+		//Set radio channel limit between 83 to 99 (2483Mhz to 2499Mhz) before start data streaming if needed. (this step is optional)
+		pDataGlove->SetRadioChannelLimit(eIMUError, 99, 83);
+		if (eIMUError == VRTRIX::IMUError_DataNotValid) UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Radio Channel Not Valid!"));
 
 		////Start data streaming.
 		pDataGlove->StartDataStreaming(eIMUError, portInfo);
