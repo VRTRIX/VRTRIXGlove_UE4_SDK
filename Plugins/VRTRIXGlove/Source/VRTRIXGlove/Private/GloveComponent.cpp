@@ -139,6 +139,7 @@ void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 				if (USteamVRFunctionLibrary::GetTrackedDevicePositionAndOrientation(m_LHTrackerIndex, tracker_loc, tracker_rot)) {
 					if (!bIsLOffsetCal) {
 			            LWristTrackerPitchOffset = FQuat(FVector::ForwardVector, FMath::DegreesToRadians(tracker_rot.Roll + 90.0f) );
+						UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Left Hand Glove connected to channel: %d"), pose.channel);
 						bIsLOffsetCal = true;
 					}
 					FQuat target =  tracker_rot.Quaternion() * LWristTrackerPitchOffset * WristTrackerRotOffset.Quaternion();
@@ -151,6 +152,7 @@ void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 				if (USteamVRFunctionLibrary::GetTrackedDevicePositionAndOrientation(m_RHTrackerIndex, tracker_loc, tracker_rot)) {
 					if (!bIsROffsetCal) {
 			            RWristTrackerPitchOffset = FQuat(FVector::ForwardVector, FMath::DegreesToRadians(tracker_rot.Roll - 90.0f)); 
+						UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Right Hand Glove connected to channel: %d"), pose.channel);
 						bIsROffsetCal = true;
 					}
 					FQuat target =  tracker_rot.Quaternion() * RWristTrackerPitchOffset * WristTrackerRotOffset.Quaternion();
