@@ -300,9 +300,13 @@ public:
 	// VRTRIX Data Gloves HandType
 	VRTRIX::HandType type;
 
-	//Call this function to vibrate for 100ms
+	//Call this function to trigger vibration for specific duration
 	UFUNCTION(BlueprintCallable, Category = "VRTRIX_GLOVES")
-	void OnTriggerHaptics();
+	void OnTriggerHaptics(int duration = 100);
+
+	//Call this function to toggle vibration (ON->OFF, OFF->ON)
+	UFUNCTION(BlueprintCallable, Category = "VRTRIX_GLOVES")
+	void OnToggleHaptics();
 
 	//Allign hand's orientation  to Head Mounted Display'sorientation, only need do once after Head Mounted Display'sorientation set up changed
 	UFUNCTION(BlueprintCallable, Category = "VRTRIX_GLOVES")

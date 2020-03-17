@@ -255,11 +255,19 @@ bool UGloveComponent::GetTrackingSystem()
 	if(VRSystem == NULL) UE_LOG(LogVRTRIXGlovePlugin, Error, TEXT("[GLOVES PULGIN] Unable to get tracking system."));
 	return (VRSystem != NULL);
 }
-void UGloveComponent::OnTriggerHaptics()
+
+void UGloveComponent::OnTriggerHaptics(int duration)
 {
 	if (!bIsDataGloveConnected) return;
 	VRTRIX::EIMUError eIMUError;
-	pDataGlove->VibratePeriod(eIMUError, 100);
+	pDataGlove->VibratePeriod(eIMUError, duration);
+}
+
+void UGloveComponent::OnToggleHaptics()
+{
+	if (!bIsDataGloveConnected) return;
+	VRTRIX::EIMUError eIMUError;
+	pDataGlove->ToggleVibration(eIMUError);
 }
 
 void UGloveComponent::OrientationAlignment()
