@@ -217,7 +217,6 @@ void UGloveComponent::OnConnectGloves()
 
 		////Start data streaming.
 		pDataGlove->StartDataStreaming(eIMUError, portInfo);
-		bIsDataGloveConnected = true;
 	}
 	else {
 		if (type == VRTRIX::Hand_Left) {

@@ -500,24 +500,16 @@ class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler
 	* @returns void
 	*/
 	void OnReceivedNewEvent(VRTRIX::HandEvent event, void* pUserParam) {
+		UGloveComponent* source = (UGloveComponent*)pUserParam;
 		switch (event.stat) {
-		case(VRTRIX::HandStatus_LowBattery): {
-			std::cout << "Low Battery!" << std::endl;
+		case(VRTRIX::HandStatus_Connected): {
+			source->bIsDataGloveConnected = true;
 			break;
 		}
-		case(VRTRIX::HandStatus_BatteryFull): {
-			std::cout << "Battery Full!" << std::endl;
+		case(VRTRIX::HandStatus_Disconnected): {
+			source->bIsDataGloveConnected = false;
 			break;
 		}
-		case(VRTRIX::HandStatus_Paired): {
-			std::cout << "Data Glove Paired!" << std::endl;
-			break;
-		}
-		case(VRTRIX::HandStatus_MagAbnormal): {
-			std::cout << "Magnetic Abnormal Detected!" << std::endl;
-			break;
-		}
-		default: break;
 		}
 	}
 };
