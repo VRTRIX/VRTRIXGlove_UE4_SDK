@@ -119,12 +119,10 @@ void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 		if (!bIsVREnabled) {
 			if (pose.type == VRTRIX::Hand_Left && !bIsLOffsetCal && i == (int)VRTRIX::Wrist_Joint && quat != FQuat::Identity) {
 				initialPoseOffset = InitialPoseOffset.Quaternion() * quat.Inverse();
-				UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Left Hand Glove connected to channel: %d"), pose.channel);
 				bIsLOffsetCal = true;
 			}
 			else if (pose.type == VRTRIX::Hand_Right && !bIsROffsetCal && i == (int)VRTRIX::Wrist_Joint && quat != FQuat::Identity) {
 				initialPoseOffset = InitialPoseOffset.Quaternion() * quat.Inverse();
-				UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Right Hand Glove connected to channel: %d"), pose.channel);
 				bIsROffsetCal = true;
 			}
 
@@ -217,6 +215,7 @@ void UGloveComponent::OnConnectGloves()
 
 		////Start data streaming.
 		pDataGlove->StartDataStreaming(eIMUError, portInfo);
+		bIsDataGlovePortOpened = true;
 	}
 	else {
 		if (type == VRTRIX::Hand_Left) {
@@ -227,18 +226,26 @@ void UGloveComponent::OnConnectGloves()
 		}
 		pDataGlove->ClosePort(eIMUError);
 		UnInit(pDataGlove);
+		bIsDataGlovePortOpened = false;
 	}
 }
 
 void UGloveComponent::OnDisconnectGloves()
 {
 	VRTRIX::EIMUError eIMUError;
-	if (bIsDataGloveConnected) {
+	if (bIsDataGlovePortOpened) {
 		pDataGlove->ClosePort(eIMUError);
 		UnInit(pDataGlove);
-		bIsDataGloveConnected = false;
+		bIsDataGlovePortOpened = false;
 	}
 }
+
+void UGloveComponent::OnReconnect()
+{
+	OnDisconnectGloves();
+	OnConnectGloves();
+}
+
 
 bool UGloveComponent::GetTrackingSystem()
 {

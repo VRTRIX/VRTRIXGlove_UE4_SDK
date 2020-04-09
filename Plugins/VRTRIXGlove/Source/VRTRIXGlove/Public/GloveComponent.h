@@ -297,8 +297,15 @@ public:
 	VRTRIX::IVRTRIXIMU* pDataGlove;
 	// VRTRIX Data Gloves States
 	bool bIsDataGloveConnected = false;
+
+	// VRTRIX Data Gloves Port States
+	bool bIsDataGlovePortOpened = false;
 	// VRTRIX Data Gloves HandType
 	VRTRIX::HandType type;
+
+	// Reconnect data gloves
+	UFUNCTION(BlueprintCallable, Category = "VRTRIX_GLOVES")
+	void OnReconnect();
 
 	//Call this function to trigger vibration for specific duration
 	UFUNCTION(BlueprintCallable, Category = "VRTRIX_GLOVES")
@@ -482,6 +489,7 @@ private:
 
 class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler
 {
+	bool bOnConnected = false;
 	/** OnReceivedNewPose event call back function implement
 	*
 	* @param pose: Pose struct returned by the call back function
@@ -491,6 +499,15 @@ class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler
 	void OnReceivedNewPose(VRTRIX::Pose pose, void* pUserParam) {
 		UGloveComponent* source = (UGloveComponent*)pUserParam;
 		source->OnReceiveNewPose(pose);
+		if (bOnConnected) {
+			if (pose.type == VRTRIX::Hand_Left) {
+				UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Left Hand Glove connected to channel: %d"), pose.channel);
+			}
+			else if (pose.type == VRTRIX::Hand_Right) {
+				UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Right Hand Glove connected to channel: %d"), pose.channel);
+			}
+			bOnConnected = false;
+		}
 	}
 
 	/** OnReceivedNewEvent event call back function implement
@@ -503,11 +520,34 @@ class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler
 		UGloveComponent* source = (UGloveComponent*)pUserParam;
 		switch (event.stat) {
 		case(VRTRIX::HandStatus_Connected): {
+			if (event.type == VRTRIX::Hand_Left) {
+				UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] Left Hand Glove Connected!"));
+			}
+			else if (event.type == VRTRIX::Hand_Right) {
+				UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] Right Hand Glove Connected!"));
+			}
 			source->bIsDataGloveConnected = true;
+			source->OnTriggerHaptics(500);
+			bOnConnected = true;
 			break;
 		}
 		case(VRTRIX::HandStatus_Disconnected): {
+			if (event.type == VRTRIX::Hand_Left) {
+				UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] Left Hand Glove Disconnected!"));
+			}
+			else if (event.type == VRTRIX::Hand_Right) {
+				UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] Right Hand Glove Disconnected!"));
+			}
 			source->bIsDataGloveConnected = false;
+			break;
+		}
+		case(VRTRIX::HandStatus_ChannelHopping): {
+			if (event.type == VRTRIX::Hand_Left) {
+				UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] Left Hand Glove Channel Hopping!"));
+			}
+			else if (event.type == VRTRIX::Hand_Right) {
+				UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] Right Hand Glove Channel Hopping!"));
+			}
 			break;
 		}
 		}
