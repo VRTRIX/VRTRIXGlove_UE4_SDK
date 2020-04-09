@@ -527,7 +527,7 @@ class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler
 				UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] Right Hand Glove Connected!"));
 			}
 			source->bIsDataGloveConnected = true;
-			source->OnTriggerHaptics(500);
+			//source->OnTriggerHaptics(500);
 			bOnConnected = true;
 			break;
 		}
