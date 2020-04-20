@@ -518,36 +518,33 @@ class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler
 	*/
 	void OnReceivedNewEvent(VRTRIX::HandEvent event, void* pUserParam) {
 		UGloveComponent* source = (UGloveComponent*)pUserParam;
-		switch (event.stat) {
+		FString handTypeString = (event.type == VRTRIX::Hand_Left) ? "Left Hand Glove" : "Right Hand Glove";
+ 		switch (event.stat) {
 		case(VRTRIX::HandStatus_Connected): {
-			if (event.type == VRTRIX::Hand_Left) {
-				UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] Left Hand Glove Connected!"));
-			}
-			else if (event.type == VRTRIX::Hand_Right) {
-				UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] Right Hand Glove Connected!"));
-			}
+			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Connected at Channel: %d, Data Rate: %d."), *handTypeString, event.channel, event.dataRate);
 			source->bIsDataGloveConnected = true;
-			//source->OnTriggerHaptics(500);
 			bOnConnected = true;
 			break;
 		}
 		case(VRTRIX::HandStatus_Disconnected): {
-			if (event.type == VRTRIX::Hand_Left) {
-				UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] Left Hand Glove Disconnected!"));
-			}
-			else if (event.type == VRTRIX::Hand_Right) {
-				UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] Right Hand Glove Disconnected!"));
-			}
+			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Disconnected from Channel: %d, Data Rate: %d."), *handTypeString, event.channel, event.dataRate);
 			source->bIsDataGloveConnected = false;
 			break;
 		}
 		case(VRTRIX::HandStatus_ChannelHopping): {
-			if (event.type == VRTRIX::Hand_Left) {
-				UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] Left Hand Glove Channel Hopping!"));
-			}
-			else if (event.type == VRTRIX::Hand_Right) {
-				UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] Right Hand Glove Channel Hopping!"));
-			}
+			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Channel Hopping from Channel: %d, Data Rate: %d."), *handTypeString, event.channel, event.dataRate);
+			break;
+		}
+		case(VRTRIX::HandStatus_InsufficientDataPacket): {
+			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Receive Insufficient Data from Channel: %d, Data Rate: %d."), *handTypeString, event.channel, event.dataRate);
+			break;
+		}
+		case(VRTRIX::HandStatus_NewChannelSelected): {
+			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Select New Channel: %d, Data Rate: %d."), *handTypeString, event.channel, event.dataRate);
+			break;
+		}
+		case(VRTRIX::HandStatus_SetRadioLimit): {
+			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s set radio limit: %d - %d."), *handTypeString, event.lowerBound, event.upperBound);
 			break;
 		}
 		}
