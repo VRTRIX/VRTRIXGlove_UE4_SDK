@@ -240,13 +240,6 @@ void UGloveComponent::OnDisconnectGloves()
 	}
 }
 
-void UGloveComponent::OnReconnect()
-{
-	OnDisconnectGloves();
-	OnConnectGloves();
-}
-
-
 bool UGloveComponent::GetTrackingSystem()
 {
 	if (!GEngine->XRSystem.IsValid() || (GEngine->XRSystem->GetSystemName() != SteamVRSystemName))
@@ -262,9 +255,20 @@ bool UGloveComponent::GetTrackingSystem()
 	return (VRSystem != NULL);
 }
 
+void UGloveComponent::OnReconnect()
+{
+	UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] Try to reconnect data gloves."));
+	OnDisconnectGloves();
+	OnConnectGloves();
+}
+
 void UGloveComponent::OnTriggerHaptics(int duration)
 {
 	if (!bIsDataGloveConnected) return;
+
+	FString handTypeString = (type == VRTRIX::Hand_Left) ? "Left Hand Glove" : "Right Hand Glove";
+	UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s trigger haptics, duration: %d."), *handTypeString, duration);
+
 	VRTRIX::EIMUError eIMUError;
 	pDataGlove->VibratePeriod(eIMUError, duration);
 }
@@ -272,6 +276,10 @@ void UGloveComponent::OnTriggerHaptics(int duration)
 void UGloveComponent::OnToggleHaptics()
 {
 	if (!bIsDataGloveConnected) return;
+
+	FString handTypeString = (type == VRTRIX::Hand_Left) ? "Left Hand Glove" : "Right Hand Glove";
+	UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s trigger haptics."), *handTypeString);
+
 	VRTRIX::EIMUError eIMUError;
 	pDataGlove->ToggleVibration(eIMUError);
 }

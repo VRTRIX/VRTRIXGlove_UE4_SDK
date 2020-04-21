@@ -489,7 +489,6 @@ private:
 
 class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler
 {
-	bool bOnConnected = false;
 	/** OnReceivedNewPose event call back function implement
 	*
 	* @param pose: Pose struct returned by the call back function
@@ -499,15 +498,6 @@ class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler
 	void OnReceivedNewPose(VRTRIX::Pose pose, void* pUserParam) {
 		UGloveComponent* source = (UGloveComponent*)pUserParam;
 		source->OnReceiveNewPose(pose);
-		if (bOnConnected) {
-			if (pose.type == VRTRIX::Hand_Left) {
-				UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Left Hand Glove connected to channel: %d"), pose.channel);
-			}
-			else if (pose.type == VRTRIX::Hand_Right) {
-				UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Right Hand Glove connected to channel: %d"), pose.channel);
-			}
-			bOnConnected = false;
-		}
 	}
 
 	/** OnReceivedNewEvent event call back function implement
@@ -523,12 +513,20 @@ class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler
 		case(VRTRIX::HandStatus_Connected): {
 			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Connected at Channel: %d, Data Rate: %d."), *handTypeString, event.channel, event.dataRate);
 			source->bIsDataGloveConnected = true;
-			bOnConnected = true;
 			break;
 		}
 		case(VRTRIX::HandStatus_Disconnected): {
-			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Disconnected from Channel: %d, Data Rate: %d."), *handTypeString, event.channel, event.dataRate);
+			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Disconnected from Channel: %d, Data Rate: %d, Byte Received: %d."),
+				*handTypeString, event.channel, event.dataRate, event.byteReceived);
 			source->bIsDataGloveConnected = false;
+			break;
+		}
+		case(VRTRIX::HandStatus_PortOpened): {
+			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Port Opened."), *handTypeString);
+			break;
+		}
+		case(VRTRIX::HandStatus_PortClosed): {
+			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Port Closed."), *handTypeString);
 			break;
 		}
 		case(VRTRIX::HandStatus_ChannelHopping): {
@@ -536,7 +534,8 @@ class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler
 			break;
 		}
 		case(VRTRIX::HandStatus_InsufficientDataPacket): {
-			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Receive Insufficient Data from Channel: %d, Data Rate: %d."), *handTypeString, event.channel, event.dataRate);
+			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Receive Insufficient Data from Channel: %d, Data Rate: %d, Byte Received: %d, errorCount: %d."), 
+				*handTypeString, event.channel, event.dataRate, event.byteReceived, event.errorCount);
 			break;
 		}
 		case(VRTRIX::HandStatus_NewChannelSelected): {
