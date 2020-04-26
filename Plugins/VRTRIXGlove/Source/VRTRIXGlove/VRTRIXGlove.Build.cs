@@ -13,7 +13,6 @@ public class VRTRIXGlove : ModuleRules
 		PublicIncludePaths.AddRange(
 			new string[] {
                 Path.Combine(ModuleDirectory, "../VRTRIXGlove/Public"),
-                //"VRTRIXGlove/Public",
                 "Runtime/HeadMountedDisplay/Public",
 				// ... add public include paths required here ...
 			}
@@ -32,12 +31,18 @@ public class VRTRIXGlove : ModuleRules
 			new string[]
 			{
 				"Core",
-				"VRTRIXGloveLibrary",
+                "CoreUObject",
+                "Engine",
+                "VRTRIXGloveLibrary",
 				"Projects",
                 "HeadMountedDisplay",
+                "EditorStyle",
+                "SlateCore",
+                "Slate",
                 "RHI",
                 "RenderCore",
-                //"ShaderCore",
+                "BlueprintGraph",
+                "AnimGraph",
                 "ProceduralMeshComponent",
                 // ... add other public dependencies that you statically link with here ...
 			}

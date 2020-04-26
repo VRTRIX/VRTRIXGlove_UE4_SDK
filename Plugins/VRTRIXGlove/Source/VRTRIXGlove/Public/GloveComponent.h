@@ -24,7 +24,7 @@ static FName SteamVRSystemName(TEXT("SteamVR"));
 #include "KismetProceduralMeshLibrary.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "IHeadMountedDisplay.h"
-
+#include "Components/PoseableMeshComponent.h"
 #include "Components/SceneComponent.h"
 #include "GloveComponent.generated.h"
 
@@ -234,8 +234,8 @@ enum class EVRDeviceProperty_Matrix34 : uint8
 	HMDProp_CameraToHeadTransform_Matrix34_2016		UMETA(DisplayName = "HMDProp_CameraToHeadTransform_Matrix34")
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGestureDetectDelegate);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGestureDetectDelegate);
 //hand position cross the bound and fall into (Lower,Upper) will trigger the gesture event 
 USTRUCT(BlueprintType, Blueprintable)//"BlueprintType" is essential to include
 struct FMyGesture
@@ -254,6 +254,54 @@ struct FMyGesture
 	bool Gesture_State =false;
     // function to check if current hand gesture is fall into the boundaries of this gesture
 	bool TriggerPositionCheck(TArray <float> Current_Position);
+};
+
+
+USTRUCT(BlueprintType)
+struct FHandBonesName
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName Wrist = "LeftHand";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName Thumb1 = "LeftHandThumb1";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName Thumb2 = "LeftHandThumb2";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName Thumb3 = "LeftHandThumb3";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName IndexInHand = "LeftInHandIndex";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName Index1 = "LeftHandIndex1";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName Index2 = "LeftHandIndex2";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName Index3 = "LeftHandIndex3";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName MiddleInHand = "LeftInHandMiddle";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName Middle1 = "LeftHandMiddle1";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName Middle2 = "LeftHandMiddle2";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName Middle3 = "LeftHandMiddle3";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName RingInHand = "LeftInHandRing";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName Ring1 = "LeftHandRing1";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName Ring2 = "LeftHandRing2";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName Ring3 = "LeftHandRing3";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName PinkyInHand = "LeftInHandPinky";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName Pinky1 = "LeftHandPinky1";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName Pinky2 = "LeftHandPinky2";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FName Pinky3 = "LeftHandPinky3";
 };
 
 
@@ -295,13 +343,22 @@ public:
 
 	// VRTRIX Data Gloves System
 	VRTRIX::IVRTRIXIMU* pDataGlove;
+	
 	// VRTRIX Data Gloves States
 	bool bIsDataGloveConnected = false;
 
 	// VRTRIX Data Gloves Port States
 	bool bIsDataGlovePortOpened = false;
+	
 	// VRTRIX Data Gloves HandType
 	VRTRIX::HandType type;
+
+	// VRTRIX Data Gloves bone index to name map
+	TMap<int, FName> BoneIndexToBoneNameMap;
+	
+	// Reconnect data gloves
+	UFUNCTION(BlueprintCallable, Category = "VRTRIX_GLOVES")
+	void ApplyHandMoCapWorldSpaceRotation(UPoseableMeshComponent *SkinMesh, FRotator alignment);
 
 	// Reconnect data gloves
 	UFUNCTION(BlueprintCallable, Category = "VRTRIX_GLOVES")
@@ -454,6 +511,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
 	     TArray<FMyGesture> Gesture_Event;
      	 int event_gesture_num=0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bone_Configuration")
+		FHandBonesName handBoneNames;
 	//Angles between fingers and palm, can be used for customized Gesture debugging. Sequence: Thumb,Index,Middle,Ring,Pinky
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Bone_Rotation")
@@ -484,6 +544,7 @@ private:
 
 private:
 	IMotionController* GetSteamMotionController();
+	void CreateBoneIndexToBoneNameMap(FHandBonesName names);
 
 };
 

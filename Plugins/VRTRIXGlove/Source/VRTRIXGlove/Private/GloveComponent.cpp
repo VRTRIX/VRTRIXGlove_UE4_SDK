@@ -37,6 +37,51 @@ IMotionController* UGloveComponent::GetSteamMotionController()
 	return nullptr;
 }
 
+void UGloveComponent::CreateBoneIndexToBoneNameMap(FHandBonesName names)
+{
+	if (names.IndexInHand != "None" && names.MiddleInHand != "None" && names.RingInHand != "None" && names.PinkyInHand != "None") {
+		BoneIndexToBoneNameMap.Emplace(0, names.Wrist);
+		BoneIndexToBoneNameMap.Emplace(1, names.Thumb1);
+		BoneIndexToBoneNameMap.Emplace(2, names.Thumb2);
+		BoneIndexToBoneNameMap.Emplace(3, names.Thumb3);
+		BoneIndexToBoneNameMap.Emplace(4, names.IndexInHand);
+		BoneIndexToBoneNameMap.Emplace(5, names.Index1);
+		BoneIndexToBoneNameMap.Emplace(6, names.Index2);
+		BoneIndexToBoneNameMap.Emplace(7, names.Index3);
+		BoneIndexToBoneNameMap.Emplace(8, names.MiddleInHand);
+		BoneIndexToBoneNameMap.Emplace(9, names.Middle1);
+		BoneIndexToBoneNameMap.Emplace(10, names.Middle2);
+		BoneIndexToBoneNameMap.Emplace(11, names.Middle3);
+		BoneIndexToBoneNameMap.Emplace(12, names.RingInHand);
+		BoneIndexToBoneNameMap.Emplace(13, names.Ring1);
+		BoneIndexToBoneNameMap.Emplace(14, names.Ring2);
+		BoneIndexToBoneNameMap.Emplace(15, names.Ring3);
+		BoneIndexToBoneNameMap.Emplace(16, names.PinkyInHand);
+		BoneIndexToBoneNameMap.Emplace(17, names.Pinky1);
+		BoneIndexToBoneNameMap.Emplace(18, names.Pinky2);
+		BoneIndexToBoneNameMap.Emplace(19, names.Pinky3);
+	}
+	else {
+		BoneIndexToBoneNameMap.Emplace(0, names.Wrist);
+		BoneIndexToBoneNameMap.Emplace(1, names.Thumb1);
+		BoneIndexToBoneNameMap.Emplace(2, names.Thumb2);
+		BoneIndexToBoneNameMap.Emplace(3, names.Thumb3);
+		BoneIndexToBoneNameMap.Emplace(4, names.Index1);
+		BoneIndexToBoneNameMap.Emplace(5, names.Index2);
+		BoneIndexToBoneNameMap.Emplace(6, names.Index3);
+		BoneIndexToBoneNameMap.Emplace(7, names.Middle1);
+		BoneIndexToBoneNameMap.Emplace(8, names.Middle2);
+		BoneIndexToBoneNameMap.Emplace(9, names.Middle3);
+		BoneIndexToBoneNameMap.Emplace(10, names.Ring1);
+		BoneIndexToBoneNameMap.Emplace(11, names.Ring2);
+		BoneIndexToBoneNameMap.Emplace(12, names.Ring3);
+		BoneIndexToBoneNameMap.Emplace(13, names.Pinky1);
+		BoneIndexToBoneNameMap.Emplace(14, names.Pinky2);
+		BoneIndexToBoneNameMap.Emplace(15, names.Pinky3);
+	}
+
+}
+
 // Sets default values for this component's properties
 UGloveComponent::UGloveComponent()
 {
@@ -73,7 +118,8 @@ void UGloveComponent::BeginPlay()
 	}
 	event_gesture_num = Gesture_Event.Num();
 	state_gesture_num = Gesture_NonEvent.Num();
-
+	//´´½¨¹Ç÷ÀÓ³Éä£»
+	CreateBoneIndexToBoneNameMap(handBoneNames);
 	// ...
 	if (bIsVREnabled && GetTrackingSystem()) {
 		GetTrackerIndex();
@@ -295,6 +341,40 @@ void UGloveComponent::OrientationAlignment()
 	}
 	VRTRIX::EIMUError error;
 	pDataGlove->SoftwareAlign(error);
+}
+
+void UGloveComponent::ApplyHandMoCapWorldSpaceRotation(UPoseableMeshComponent *SkinMesh, FRotator alignment)
+{
+	if (!bIsDataGloveConnected) return;
+
+	SetWristAlignment(alignment);
+
+	TArray<FRotator> FingerWorldSpaceRotation;
+	FingerWorldSpaceRotation.Init(FRotator::ZeroRotator, BoneIndexToBoneNameMap.Num());
+
+	if (BoneIndexToBoneNameMap.Num() == VRTRIX::Joint_MAX) {
+		for (int i = 0; i < BoneIndexToBoneNameMap.Num(); i++) {
+			FingerWorldSpaceRotation[i] = rotation[i];
+		}
+	}
+	else if (BoneIndexToBoneNameMap.Num() == VRTRIX::Joint_MAX + 4) {
+		for (int i = 0; i < BoneIndexToBoneNameMap.Num(); i++) {
+			int QuatIndex = 0;
+			if (i == 4 || i == 8 || i == 12 || i == 16) QuatIndex = 0;
+			else if (i < 4) QuatIndex = i;
+			else if (i < 8) QuatIndex = i - 1;
+			else if (i < 12) QuatIndex = i - 2;
+			else if (i < 16) QuatIndex = i - 3;
+			else QuatIndex = i - 4;
+			FingerWorldSpaceRotation[i] = rotation[QuatIndex];
+		}
+	}
+	else return;
+
+	for (int i = 0; i < BoneIndexToBoneNameMap.Num(); i++)
+	{
+		SkinMesh->SetBoneRotationByName(BoneIndexToBoneNameMap[i], FingerWorldSpaceRotation[i], EBoneSpaces::WorldSpace);
+	}
 }
 
 void UGloveComponent::GetTrackerIndex()
