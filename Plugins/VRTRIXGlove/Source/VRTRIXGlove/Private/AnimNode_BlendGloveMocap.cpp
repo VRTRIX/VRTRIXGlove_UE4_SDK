@@ -40,6 +40,8 @@ void FAnimNode_BlendGloveMoCap::Update_AnyThread(const FAnimationUpdateContext &
 
 void FAnimNode_BlendGloveMoCap::Evaluate_AnyThread(FPoseContext & Output)
 {
+	MoCap.Evaluate(Output);
+
 	if (LHGloveComponent == nullptr || RHGloveComponent == nullptr) return;
 	if (!LHGloveComponent->bIsDataGloveConnected || !RHGloveComponent->bIsDataGloveConnected) return;
 
@@ -47,7 +49,6 @@ void FAnimNode_BlendGloveMoCap::Evaluate_AnyThread(FPoseContext & Output)
 	FinalPose.InitPose(&Output.Pose.GetBoneContainer());
 	const FBoneContainer Container = FinalPose.GetPose().GetBoneContainer();
 	
-	MoCap.Evaluate(Output);
 	FPoseContext GloveContext(Output);
 	Glove.Evaluate(GloveContext);
 
