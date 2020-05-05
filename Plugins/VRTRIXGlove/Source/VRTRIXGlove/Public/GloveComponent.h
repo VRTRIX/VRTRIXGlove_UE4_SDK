@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "VRTRIX_IMU.h"
+#include "VRTRIXDataGloveClient.h"
 #include <Core.h>
 #include <Engine.h>
 #include "EngineUtils.h"
@@ -342,7 +342,7 @@ public:
 	void Calculate_Gesture_State();
 
 	// VRTRIX Data Gloves System
-	VRTRIX::IVRTRIXIMU* pDataGlove;
+	VRTRIX::IVRTRIXDataGloveClient* pDataGlove;
 	
 	// VRTRIX Data Gloves States
 	bool bIsDataGloveConnected = false;
@@ -458,6 +458,12 @@ public:
 	//Which hand you want to bond with your model,make sure the receiver for selected hand is connected
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
 		HardwareVersion HardwareVersion = HardwareVersion::PRO;
+	//Server ip address to fetch glove data
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FString ServerIP = "127.0.0.1";
+	//Server port to fetch glove data
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
+		FString Port = "11002";
 	//Advanced mode to unlock finger yaw rotation.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
 		bool AdvancedMode = false;
@@ -541,11 +547,13 @@ private:
 	FRotator m_RTrackerRot;
 	int m_LHTrackerIndex;
 	int m_RHTrackerIndex;
+	VRTRIX::Pose m_pose;
 
 private:
 	IMotionController* GetSteamMotionController();
 	void CreateBoneIndexToBoneNameMap(FHandBonesName names);
-
+	double CalculateBendAngle(const VRTRIX::VRTRIXQuaternion_t& q1, const VRTRIX::VRTRIXQuaternion_t& q2);
+	double GetFingerBendAngle(VRTRIX::Joint finger, VRTRIX::EIMUError &eError);
 };
 
 class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler
@@ -572,39 +580,13 @@ class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler
 		FString handTypeString = (event.type == VRTRIX::Hand_Left) ? "Left Hand Glove" : "Right Hand Glove";
  		switch (event.stat) {
 		case(VRTRIX::HandStatus_Connected): {
-			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Connected at Channel: %d, Data Rate: %d."), *handTypeString, event.channel, event.dataRate);
+			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Connected at address: %s: %s."), *handTypeString, *source->ServerIP, *source->Port);
 			source->bIsDataGloveConnected = true;
 			break;
 		}
 		case(VRTRIX::HandStatus_Disconnected): {
-			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Disconnected from Channel: %d, Data Rate: %d, Byte Received: %d."),
-				*handTypeString, event.channel, event.dataRate, event.byteReceived);
+			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Disconnected."), *handTypeString);
 			source->bIsDataGloveConnected = false;
-			break;
-		}
-		case(VRTRIX::HandStatus_PortOpened): {
-			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Port Opened."), *handTypeString);
-			break;
-		}
-		case(VRTRIX::HandStatus_PortClosed): {
-			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Port Closed."), *handTypeString);
-			break;
-		}
-		case(VRTRIX::HandStatus_ChannelHopping): {
-			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Channel Hopping from Channel: %d, Data Rate: %d."), *handTypeString, event.channel, event.dataRate);
-			break;
-		}
-		case(VRTRIX::HandStatus_InsufficientDataPacket): {
-			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Receive Insufficient Data from Channel: %d, Data Rate: %d, Byte Received: %d, errorCount: %d."), 
-				*handTypeString, event.channel, event.dataRate, event.byteReceived, event.errorCount);
-			break;
-		}
-		case(VRTRIX::HandStatus_NewChannelSelected): {
-			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Select New Channel: %d, Data Rate: %d."), *handTypeString, event.channel, event.dataRate);
-			break;
-		}
-		case(VRTRIX::HandStatus_SetRadioLimit): {
-			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s set radio limit: %d - %d."), *handTypeString, event.lowerBound, event.upperBound);
 			break;
 		}
 		}

@@ -30,8 +30,7 @@ namespace VRTRIX {
 	{
 		InitMode_None,
 		InitMode_Normal,
-		InitMode_Advanced,
-		InitMode_GloveStatusChecking,
+		InitMode_Advanced
 	};
 
 
@@ -82,13 +81,8 @@ namespace VRTRIX {
 	{
 		HandStatus_None,
 		HandStatus_Connected,
+		HandStatus_ConnectServerError,
 		HandStatus_Disconnected,
-		HandStatus_PortOpened,
-		HandStatus_PortClosed,
-		HandStatus_ChannelHopping,
-		HandStatus_SetRadioLimit,
-		HandStatus_InsufficientDataPacket,
-		HandStatus_NewChannelSelected,
 		HandStatus_LowBattery,
 		HandStatus_BatteryFull,
 		HandStatus_Paired,
@@ -141,28 +135,19 @@ namespace VRTRIX {
 		AlgorithmConfig_Max = 9,
 	};
 
-	//! Serial port information need for data streaming.
+	//! Server port information need for data streaming.
 	struct PortInfo {
-		/*! Baud Rate */
-		int baud_rate;
+		/*! Server IP */
+		std::string IP;
 
-		/*! Index number of data glove ports */
-		int index = 16;
+		/*! Server port*/
+		std::string port;
 
-		/*! Hand Type */
+		/*! Device Index*/
+		int index;
+
+		/*! Hand type*/
 		HandType type;
-
-		/*! Address of the serial port (this can be passed to the constructor of Serial). */
-		char port[BUF_SIZE];
-
-		/*! Human readable description of serial device if available. */
-		char description[BUF_SIZE];
-
-		/*! Hardware ID (e.g. VID:PID of USB serial devices) or "n/a" if not available. */
-		char hardware_id[BUF_SIZE];
-
-		/*! Instance ID */
-		char instance_id[BUF_SIZE];
 	};
 
 	//! Quaternion data structure used in C++ API.
@@ -200,7 +185,7 @@ namespace VRTRIX {
 		HandType type; //!< Glove hand type
 		int dataRate; //!< Glove data rate (Hz)
 		int channel; //!< Glove radio channel (1-99)
-		int calScore[IMU_NUM]; //!< IMU calibration score. Lower score means better calibration results.
+		int calScore; //!< IMU calibration score. Lower score means better calibration results.
 		int radioStrength; //!< Glove wireless radio strength
 		double battery; //!< Glove battery percentage
 	};
@@ -210,12 +195,6 @@ namespace VRTRIX {
 	struct HandEvent {
 		HandStatus stat; //!< Glove hardware status
 		HandType type;	//!< Glove hand type
-		int dataRate; //!< Glove data rate (Hz)
-		int channel; //!< Glove radio channel (1-99)
-		int upperBound; //!< Glove radio channel upperBound(1-99)
-		int lowerBound; //!< Glove radio channel lowerBound(1-99)
-		int byteReceived; //!< Glove byte received last 500ms
-		int errorCount;	//!< Glove data error count during transmission
 	};
 
     //!  VRTRIX IMU event handler class. 

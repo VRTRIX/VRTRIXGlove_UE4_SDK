@@ -4,7 +4,6 @@
 #include "Core.h"
 #include "ModuleManager.h"
 #include "IPluginManager.h"
-#include "VRTRIX_IMU.h"
 
 #define LOCTEXT_NAMESPACE "FVRTRIXGloveModule"
 
@@ -19,13 +18,11 @@ void FVRTRIXGloveModule::StartupModule()
 	FString LibraryPath;
 
 #if PLATFORM_WINDOWS && PLATFORM_64BITS
-	LibraryPath = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/VRTRIXGloveLibrary/x64/Release/VRTRIXIMU.dll"));
+	LibraryPath = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/VRTRIXGloveLibrary/x64/Release/VRTRIXDATAGLOVECLIENT.dll"));
 
 #elif PLATFORM_WINDOWS 
-	LibraryPath = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/VRTRIXGloveLibrary/x86/Release/VRTRIXIMU.dll"));
+	LibraryPath = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/VRTRIXGloveLibrary/x86/Release/VRTRIXDATAGLOVECLIENT.dll"));
 
-#elif PLATFORM_MAC
-    LibraryPath = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/VRTRIXGloveLibrary/Mac/Release/VRTRIXIMU.dylib"));
 #endif // PLATFORM_WINDOWS
 
 	GloveLibraryHandle = !LibraryPath.IsEmpty() ? FPlatformProcess::GetDllHandle(*LibraryPath) : nullptr;

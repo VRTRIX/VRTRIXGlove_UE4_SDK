@@ -82,6 +82,19 @@ void UGloveComponent::CreateBoneIndexToBoneNameMap(FHandBonesName names)
 
 }
 
+double UGloveComponent::CalculateBendAngle(const VRTRIX::VRTRIXQuaternion_t & q1, const VRTRIX::VRTRIXQuaternion_t & q2)
+{
+	FQuat q1_fquat(q1.qx, q1.qy, q1.qz, q1.qw);
+	FQuat q2_fquat(q2.qx, q2.qy, q2.qz, q2.qw);
+	FQuat offset = q1_fquat.Inverse() * q2_fquat;
+	return FMath::RadiansToDegrees(atan2(2.0f * offset.W * offset.Z + 2.0f * offset.X * offset.Y, 1 - 2.0f * (offset.Z * offset.Z + offset.X * offset.X)));
+}
+
+double UGloveComponent::GetFingerBendAngle(VRTRIX::Joint finger, VRTRIX::EIMUError & eError)
+{
+	return CalculateBendAngle(m_pose.imuData[VRTRIX::Wrist_Joint], m_pose.imuData[finger]);
+}
+
 // Sets default values for this component's properties
 UGloveComponent::UGloveComponent()
 {
@@ -134,6 +147,7 @@ void UGloveComponent::EndPlay(const EEndPlayReason::Type EEndPlayReason)
 
 void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 {
+	m_pose = pose;
 	VRTRIX::EIMUError error = VRTRIX::IMUError_None;
 	VRTRIX::VRTRIXVector_t offset = { ThumbOffset[0].X, ThumbOffset[0].Y, ThumbOffset[0].Z };
 	pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Proximal, VRTRIX::AlgorithmConfig_ThumbOffset, 0, offset);
@@ -148,11 +162,11 @@ void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 	pDataGlove->AlgorithmTuning(error, VRTRIX::Wrist_Joint, VRTRIX::AlgorithmConfig_FinalFingerSpacing, FinalFingerSpacing);
 
 	
-	FingerBendingAngle[0] = pDataGlove->GetFingerBendAngle(VRTRIX::Thumb_Intermediate, error);
-	FingerBendingAngle[1] = pDataGlove->GetFingerBendAngle(VRTRIX::Index_Intermediate, error);
-	FingerBendingAngle[2] = pDataGlove->GetFingerBendAngle(VRTRIX::Middle_Intermediate, error);
-	FingerBendingAngle[3] = pDataGlove->GetFingerBendAngle(VRTRIX::Ring_Intermediate, error);
-	FingerBendingAngle[4] = pDataGlove->GetFingerBendAngle(VRTRIX::Pinky_Intermediate, error);
+	FingerBendingAngle[0] = GetFingerBendAngle(VRTRIX::Thumb_Intermediate, error);
+	FingerBendingAngle[1] = GetFingerBendAngle(VRTRIX::Index_Intermediate, error);
+	FingerBendingAngle[2] = GetFingerBendAngle(VRTRIX::Middle_Intermediate, error);
+	FingerBendingAngle[3] = GetFingerBendAngle(VRTRIX::Ring_Intermediate, error);
+	FingerBendingAngle[4] = GetFingerBendAngle(VRTRIX::Pinky_Intermediate, error);
 
 	for (int i = 0; i < VRTRIX::Joint_MAX; ++i) {
 		FQuat quat = { pose.imuData[i].qx, pose.imuData[i].qy,pose.imuData[i].qz,pose.imuData[i].qw};
@@ -245,22 +259,23 @@ void UGloveComponent::OnConnectGloves()
 
 	//Register event call back and perform events handling/pose updating.
 	pDataGlove->RegisterIMUDataCallback(pEventHandler, this);
-	//Prepare PortInfo struct and open the data streaming serial port of glove.
+	
+	//Connect Data Gloves
 	VRTRIX::PortInfo portInfo;
+	portInfo.IP = std::string(TCHAR_TO_UTF8(*ServerIP));
+	portInfo.port = std::string(TCHAR_TO_UTF8(*Port));
 	portInfo.type = type;
-	pDataGlove->OpenPort(eIMUError, portInfo);
+	pDataGlove->ConnectDataGlove(eIMUError, portInfo);
 
 	if (eIMUError == VRTRIX::IMUError_None) {
 		//Print out full port information
-		UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] PORT NAME: %s"), *FString(portInfo.port));
-		UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] PORT BAUD RATE: %d"), portInfo.baud_rate);
+		UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Server IP: %s"), *FString(portInfo.IP.c_str()));
+		UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Port: %s"), *FString(portInfo.port.c_str()));
 
 		//Set radio channel limit between 65 to 99 (2465Mhz to 2499Mhz) before start data streaming if needed. (this step is optional)
 		pDataGlove->SetRadioChannelLimit(eIMUError, 99, 65);
 		if (eIMUError == VRTRIX::IMUError_DataNotValid) UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Radio Channel Not Valid!"));
 
-		////Start data streaming.
-		pDataGlove->StartDataStreaming(eIMUError, portInfo);
 		bIsDataGlovePortOpened = true;
 	}
 	else {
@@ -270,8 +285,6 @@ void UGloveComponent::OnConnectGloves()
 		else {
 			UE_LOG(LogVRTRIXGlovePlugin, Error, TEXT("[GLOVES PULGIN] Unable to init Right Hand Glove: %d"), (int)eIMUError);
 		}
-		pDataGlove->ClosePort(eIMUError);
-		UnInit(pDataGlove);
 		bIsDataGlovePortOpened = false;
 	}
 }
@@ -280,8 +293,7 @@ void UGloveComponent::OnDisconnectGloves()
 {
 	VRTRIX::EIMUError eIMUError;
 	if (bIsDataGlovePortOpened) {
-		pDataGlove->ClosePort(eIMUError);
-		UnInit(pDataGlove);
+		pDataGlove->DisconnectDataGlove(eIMUError);
 		bIsDataGlovePortOpened = false;
 	}
 }

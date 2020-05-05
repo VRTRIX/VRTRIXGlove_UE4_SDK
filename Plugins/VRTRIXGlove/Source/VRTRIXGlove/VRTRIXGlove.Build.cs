@@ -81,12 +81,12 @@ public class VRTRIXGlove : ModuleRules
 
         if (Target.Platform == UnrealTargetPlatform.Win64)
         {
-           RuntimeDependencies.Add(new RuntimeDependency(Path.Combine(ModuleDirectory, "../ThirdParty/VRTRIXGloveLibrary/x64/Release/", "VRTRIXIMU.dll")));
+           RuntimeDependencies.Add(new RuntimeDependency(Path.Combine(ModuleDirectory, "../ThirdParty/VRTRIXGloveLibrary/x64/Release/", "VRTRIXDATAGLOVECLIENT.dll")));
         }
 
         else if (Target.Platform == UnrealTargetPlatform.Win32)
         {
-           RuntimeDependencies.Add(new RuntimeDependency(Path.Combine(ModuleDirectory, "../ThirdParty/VRTRIXGloveLibrary/x86/Release/", "VRTRIXIMU.dll")));
+          RuntimeDependencies.Add(new RuntimeDependency(Path.Combine(ModuleDirectory, "../ThirdParty/VRTRIXGloveLibrary/x86/Release/", "VRTRIXDATAGLOVECLIENT.dll")));
         }
 	}
 }

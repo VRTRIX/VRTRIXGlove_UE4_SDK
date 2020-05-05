@@ -15,7 +15,7 @@
 *.so
 *.dylib
 *.dll
-!VRTRIXIMU.dll
+!VRTRIXDATAGLOVECLIENT.dll
 
 # Fortran module files
 *.mod
@@ -25,7 +25,7 @@
 *.la
 *.a
 *.lib
-!VRTRIXIMU.lib
+!VRTRIXDATAGLOVECLIENT.lib
 
 # Executables
 *.exe

@@ -16,17 +16,17 @@ public class VRTRIXGloveLibrary : ModuleRules
         if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
             // Add the import library
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "x64", "Release", "VRTRIXIMU.lib"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "x64", "Release", "VRTRIXDATAGLOVECLIENT.lib"));
 			// Delay-load the DLL, so we can load it from the right place first
-			PublicDelayLoadDLLs.Add("VRTRIXIMU.dll");
+			PublicDelayLoadDLLs.Add("VRTRIXDATAGLOVECLIENT.dll");
 		}
 
         else if (Target.Platform == UnrealTargetPlatform.Win32)
         {
             // Add the import library
-            PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "x86", "Release", "VRTRIXIMU.lib"));
+            PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "x86", "Release", "VRTRIXDATAGLOVECLIENT.lib"));
 			// Delay-load the DLL, so we can load it from the right place first
-			PublicDelayLoadDLLs.Add("VRTRIXIMU.dll");
+			PublicDelayLoadDLLs.Add("VRTRIXDATAGLOVECLIENT.dll");
         }
 	}
 }
