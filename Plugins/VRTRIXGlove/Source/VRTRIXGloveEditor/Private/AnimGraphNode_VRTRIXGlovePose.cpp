@@ -5,6 +5,11 @@
 
 #define LOCTEXT_NAMESPACE "VRTRIXGloveAnimNode"
 
+UAnimGraphNode_VRTRIXGlovePose::UAnimGraphNode_VRTRIXGlovePose(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
 FText UAnimGraphNode_VRTRIXGlovePose::GetNodeTitle(ENodeTitleType::Type TitleType) const
 {
 	return LOCTEXT("NodeTitle", "VRTRIXGlove Pose");

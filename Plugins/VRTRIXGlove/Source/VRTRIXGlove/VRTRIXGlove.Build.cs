@@ -17,32 +17,17 @@ public class VRTRIXGlove : ModuleRules
 				// ... add public include paths required here ...
 			}
 			);
-				
-		
-		PrivateIncludePaths.AddRange(
-			new string[] {
-				"VRTRIXGlove/Private"
-				// ... add other private include paths required here ...
-			}
-			);
 			
 		
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
 				"Core",
-                "CoreUObject",
-                "Engine",
                 "VRTRIXGloveLibrary",
 				"Projects",
                 "HeadMountedDisplay",
-                "EditorStyle",
-                "SlateCore",
-                "Slate",
                 "RHI",
                 "RenderCore",
-                "BlueprintGraph",
-                "AnimGraph",
                 "ProceduralMeshComponent",
                 // ... add other public dependencies that you statically link with here ...
 			}

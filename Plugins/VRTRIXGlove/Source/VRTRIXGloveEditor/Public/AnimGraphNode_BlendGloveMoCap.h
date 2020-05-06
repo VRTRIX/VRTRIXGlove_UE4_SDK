@@ -3,23 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GloveComponent.h"
 #include "AnimGraphNode_Base.h"
-#include "AnimNode_VRTRIXGlovePose.h"
-#include "AnimGraphNode_VRTRIXGlovePose.generated.h"
+#include "AnimNode_BlendGloveMoCap.h"
+#include "AnimGraphNode_BlendGloveMoCap.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class VRTRIXGLOVE_API UAnimGraphNode_VRTRIXGlovePose : public UAnimGraphNode_Base
+class UAnimGraphNode_BlendGloveMoCap : public UAnimGraphNode_Base
 {
-	GENERATED_BODY()
+	GENERATED_UCLASS_BODY()
 	
 	UPROPERTY(EditAnywhere, Category = Settings)
-	FAnimNode_VRTRIXGlovePose Node;
+	FAnimNode_BlendGloveMoCap Node;
 
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
 	virtual FText GetTooltipText() const override;
+	virtual FLinearColor GetNodeTitleColor() const override;
 	virtual FText GetMenuCategory() const;
 };

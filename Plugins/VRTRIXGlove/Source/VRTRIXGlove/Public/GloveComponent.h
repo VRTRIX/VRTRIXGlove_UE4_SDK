@@ -549,11 +549,18 @@ private:
 	int m_RHTrackerIndex;
 	VRTRIX::Pose m_pose;
 
+	TArray<FVector> m_ThumbOffset = { FVector(0, 0, 0), FVector(0, 0, 0), FVector(0, 0, 0) };
+	float m_ThumbProximalSlerp = 0;
+	float m_ThumbMiddleSlerp = 0;
+	float m_FingerSpacing = 0;
+	float m_FinalFingerSpacing = 0;
+
 private:
 	IMotionController* GetSteamMotionController();
 	void CreateBoneIndexToBoneNameMap(FHandBonesName names);
 	double CalculateBendAngle(const VRTRIX::VRTRIXQuaternion_t& q1, const VRTRIX::VRTRIXQuaternion_t& q2);
-	double GetFingerBendAngle(VRTRIX::Joint finger, VRTRIX::EIMUError &eError);
+	double GetFingerBendAngle(VRTRIX::Joint finger);
+	void PerformAlgorithmTuning();
 };
 
 class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler

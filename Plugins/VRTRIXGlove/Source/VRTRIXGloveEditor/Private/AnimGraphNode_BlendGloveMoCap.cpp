@@ -5,6 +5,11 @@
 
 #define LOCTEXT_NAMESPACE "VRTRIXGloveAnimNode"
 
+UAnimGraphNode_BlendGloveMoCap::UAnimGraphNode_BlendGloveMoCap(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
 FText UAnimGraphNode_BlendGloveMoCap::GetNodeTitle(ENodeTitleType::Type TitleType) const
 {
 	return LOCTEXT("NodeTitle", "Blend Glove Data In Mocap");

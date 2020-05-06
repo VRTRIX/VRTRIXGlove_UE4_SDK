@@ -17,7 +17,12 @@
     {
       "Name": "VRTRIXGlove",
       "Type": "Runtime",
-      "WhitelistPlatforms" : ["Win64", "Win32"],
+      "WhitelistPlatforms": [ "Win64", "Win32" ],
+      "LoadingPhase": "PostConfigInit"
+    },
+    {
+      "Name": "VRTRIXGloveEditor",
+      "Type": "Developer",
       "LoadingPhase": "PostConfigInit"
     }
   ],

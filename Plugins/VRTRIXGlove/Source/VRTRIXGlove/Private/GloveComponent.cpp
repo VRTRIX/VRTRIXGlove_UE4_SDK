@@ -90,9 +90,53 @@ double UGloveComponent::CalculateBendAngle(const VRTRIX::VRTRIXQuaternion_t & q1
 	return FMath::RadiansToDegrees(atan2(2.0f * offset.W * offset.Z + 2.0f * offset.X * offset.Y, 1 - 2.0f * (offset.Z * offset.Z + offset.X * offset.X)));
 }
 
-double UGloveComponent::GetFingerBendAngle(VRTRIX::Joint finger, VRTRIX::EIMUError & eError)
+double UGloveComponent::GetFingerBendAngle(VRTRIX::Joint finger)
 {
 	return CalculateBendAngle(m_pose.imuData[VRTRIX::Wrist_Joint], m_pose.imuData[finger]);
+}
+
+void UGloveComponent::PerformAlgorithmTuning()
+{
+	VRTRIX::EIMUError error = VRTRIX::IMUError_None;
+	VRTRIX::VRTRIXVector_t offset;
+	
+	if (m_ThumbOffset[0] != ThumbOffset[0]) {
+		offset = { ThumbOffset[0].X, ThumbOffset[0].Y, ThumbOffset[0].Z };
+		pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Proximal, VRTRIX::AlgorithmConfig_ThumbOffset, 0, offset);
+		m_ThumbOffset[0] = ThumbOffset[0];
+	}
+
+	if (m_ThumbOffset[1] != ThumbOffset[1]) {
+		offset = { ThumbOffset[1].X, ThumbOffset[1].Y, ThumbOffset[1].Z };
+		pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Intermediate, VRTRIX::AlgorithmConfig_ThumbOffset, 0, offset);
+		m_ThumbOffset[1] = ThumbOffset[1];
+	}
+
+	if (m_ThumbOffset[2] != ThumbOffset[2]) {
+		offset = { ThumbOffset[2].X, ThumbOffset[2].Y, ThumbOffset[2].Z };
+		pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Distal, VRTRIX::AlgorithmConfig_ThumbOffset, 0, offset);
+		m_ThumbOffset[2] = ThumbOffset[2];
+	}
+
+	if (m_ThumbProximalSlerp != ThumbProximalSlerp) {
+		pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Proximal, VRTRIX::AlgorithmConfig_ProximalSlerpDown, ThumbProximalSlerp);
+		m_ThumbProximalSlerp = ThumbProximalSlerp;
+	}
+
+	if (m_ThumbMiddleSlerp != ThumbMiddleSlerp) {
+		pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Distal, VRTRIX::AlgorithmConfig_DistalSlerpDown, ThumbMiddleSlerp);
+		m_ThumbMiddleSlerp = ThumbMiddleSlerp;
+	}
+
+	if (m_FingerSpacing != FingerSpacing) {
+		pDataGlove->AlgorithmTuning(error, VRTRIX::Wrist_Joint, VRTRIX::AlgorithmConfig_FingerSpcaing, FingerSpacing);
+		m_FingerSpacing = FingerSpacing;
+	}
+
+	if (m_FinalFingerSpacing != FinalFingerSpacing) {
+		pDataGlove->AlgorithmTuning(error, VRTRIX::Wrist_Joint, VRTRIX::AlgorithmConfig_FinalFingerSpacing, FinalFingerSpacing);
+		m_FinalFingerSpacing = FinalFingerSpacing;
+	}
 }
 
 // Sets default values for this component's properties
@@ -147,26 +191,13 @@ void UGloveComponent::EndPlay(const EEndPlayReason::Type EEndPlayReason)
 
 void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 {
+	PerformAlgorithmTuning();
 	m_pose = pose;
-	VRTRIX::EIMUError error = VRTRIX::IMUError_None;
-	VRTRIX::VRTRIXVector_t offset = { ThumbOffset[0].X, ThumbOffset[0].Y, ThumbOffset[0].Z };
-	pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Proximal, VRTRIX::AlgorithmConfig_ThumbOffset, 0, offset);
-	offset = { ThumbOffset[1].X, ThumbOffset[1].Y, ThumbOffset[1].Z };
-	pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Intermediate, VRTRIX::AlgorithmConfig_ThumbOffset, 0, offset);
-	offset = { ThumbOffset[2].X, ThumbOffset[2].Y, ThumbOffset[2].Z };
-	pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Distal, VRTRIX::AlgorithmConfig_ThumbOffset, 0, offset);
-	pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Proximal, VRTRIX::AlgorithmConfig_ProximalSlerpDown, ThumbProximalSlerp);
-	pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Distal, VRTRIX::AlgorithmConfig_DistalSlerpDown, ThumbMiddleSlerp);
-
-	pDataGlove->AlgorithmTuning(error, VRTRIX::Wrist_Joint, VRTRIX::AlgorithmConfig_FingerSpcaing, FingerSpacing);
-	pDataGlove->AlgorithmTuning(error, VRTRIX::Wrist_Joint, VRTRIX::AlgorithmConfig_FinalFingerSpacing, FinalFingerSpacing);
-
-	
-	FingerBendingAngle[0] = GetFingerBendAngle(VRTRIX::Thumb_Intermediate, error);
-	FingerBendingAngle[1] = GetFingerBendAngle(VRTRIX::Index_Intermediate, error);
-	FingerBendingAngle[2] = GetFingerBendAngle(VRTRIX::Middle_Intermediate, error);
-	FingerBendingAngle[3] = GetFingerBendAngle(VRTRIX::Ring_Intermediate, error);
-	FingerBendingAngle[4] = GetFingerBendAngle(VRTRIX::Pinky_Intermediate, error);
+	FingerBendingAngle[0] = GetFingerBendAngle(VRTRIX::Thumb_Intermediate);
+	FingerBendingAngle[1] = GetFingerBendAngle(VRTRIX::Index_Intermediate);
+	FingerBendingAngle[2] = GetFingerBendAngle(VRTRIX::Middle_Intermediate);
+	FingerBendingAngle[3] = GetFingerBendAngle(VRTRIX::Ring_Intermediate);
+	FingerBendingAngle[4] = GetFingerBendAngle(VRTRIX::Pinky_Intermediate);
 
 	for (int i = 0; i < VRTRIX::Joint_MAX; ++i) {
 		FQuat quat = { pose.imuData[i].qx, pose.imuData[i].qy,pose.imuData[i].qz,pose.imuData[i].qw};
