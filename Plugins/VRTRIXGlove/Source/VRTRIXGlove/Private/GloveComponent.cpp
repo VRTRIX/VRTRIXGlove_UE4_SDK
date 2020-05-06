@@ -302,11 +302,6 @@ void UGloveComponent::OnConnectGloves()
 		//Print out full port information
 		UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Server IP: %s"), *FString(portInfo.IP.c_str()));
 		UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Port: %s"), *FString(portInfo.port.c_str()));
-
-		//Set radio channel limit between 65 to 99 (2465Mhz to 2499Mhz) before start data streaming if needed. (this step is optional)
-		pDataGlove->SetRadioChannelLimit(eIMUError, 99, 65);
-		if (eIMUError == VRTRIX::IMUError_DataNotValid) UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Radio Channel Not Valid!"));
-
 		bIsDataGlovePortOpened = true;
 	}
 	else {

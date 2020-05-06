@@ -589,6 +589,11 @@ class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler
 		case(VRTRIX::HandStatus_Connected): {
 			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Connected at address: %s: %s."), *handTypeString, *source->ServerIP, *source->Port);
 			source->bIsDataGloveConnected = true;
+
+			//Set radio channel limit between 65 to 99 (2465Mhz to 2499Mhz) before start data streaming if needed. (this step is optional)
+			VRTRIX::EIMUError eIMUError;
+			source->pDataGlove->SetRadioChannelLimit(eIMUError, 99, 65);
+			if (eIMUError == VRTRIX::IMUError_DataNotValid) UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Radio Channel Not Valid!"));
 			break;
 		}
 		case(VRTRIX::HandStatus_Disconnected): {
