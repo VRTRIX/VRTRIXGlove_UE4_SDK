@@ -42,7 +42,21 @@ enum class HardwareVersion : uint8
 {
 	DK1 	UMETA(DisplayName = "DK1"),
 	DK2 	UMETA(DisplayName = "DK2"),
-	PRO		UMETA(DisplayName = "PRO")
+	PRO		UMETA(DisplayName = "PRO"),
+	PRO7	UMETA(DisplayName = "PRO7"),
+	PRO11	UMETA(DisplayName = "PRO11"),
+	PRO12	UMETA(DisplayName = "PRO12")
+};
+
+UENUM(BlueprintType)		//"BlueprintType" is essential to include
+enum class DeviceID : uint8
+{
+	Device0 	UMETA(DisplayName = "Device0"),
+	Device1 	UMETA(DisplayName = "Device1"),
+	Device2		UMETA(DisplayName = "Device2"),
+	Device3 	UMETA(DisplayName = "Device3"),
+	Device4 	UMETA(DisplayName = "Device4"),
+	Device5		UMETA(DisplayName = "Device5")
 };
 
 UENUM()
@@ -344,8 +358,7 @@ public:
 	// VRTRIX Data Gloves System
 	VRTRIX::IVRTRIXDataGloveClient* pDataGlove;
 	
-	// VRTRIX Data Gloves States
-	bool bIsDataGloveConnected = false;
+
 
 	// VRTRIX Data Gloves Port States
 	bool bIsDataGlovePortOpened = false;
@@ -461,9 +474,9 @@ public:
 	//Server ip address to fetch glove data
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
 		FString ServerIP = "127.0.0.1";
-	//Server port to fetch glove data
+	//Device ID to identify which glove to connect.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
-		FString Port = "11002";
+		DeviceID GloveID = DeviceID::Device0;
 	//Advanced mode to unlock finger yaw rotation.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Developer_Configurable")
 		bool AdvancedMode = false;
@@ -520,12 +533,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bone_Configuration")
 		FHandBonesName handBoneNames;
-	//Angles between fingers and palm, can be used for customized Gesture debugging. Sequence: Thumb,Index,Middle,Ring,Pinky
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Bone_Rotation")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Glove_Data")
 		TArray<FRotator> rotation;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Bone_Rotation")
+	//Angles between fingers and palm, can be used for customized Gesture debugging. Sequence: Thumb,Index,Middle,Ring,Pinky
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Glove_Data")
 		TArray<float> FingerBendingAngle;
+	// VRTRIX Data Gloves States
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Glove_Data")
+		bool bIsDataGloveConnected = false;
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -587,7 +603,7 @@ class CVRTRIXIMUEventHandler :public VRTRIX::IVRTRIXIMUEventHandler
 		FString handTypeString = (event.type == VRTRIX::Hand_Left) ? "Left Hand Glove" : "Right Hand Glove";
  		switch (event.stat) {
 		case(VRTRIX::HandStatus_Connected): {
-			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Connected at address: %s: %s."), *handTypeString, *source->ServerIP, *source->Port);
+			UE_LOG(LogVRTRIXGlovePlugin, Warning, TEXT("[GLOVES PULGIN] %s Connected at address: %s: %s."), *handTypeString, *source->ServerIP, *(FString::FromInt(11002+(int)source->GloveID)));
 			source->bIsDataGloveConnected = true;
 
 			//Set radio channel limit between 65 to 99 (2465Mhz to 2499Mhz) before start data streaming if needed. (this step is optional)

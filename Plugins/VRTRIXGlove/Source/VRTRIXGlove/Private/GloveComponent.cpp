@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GloveComponent.h"
 
@@ -175,7 +175,7 @@ void UGloveComponent::BeginPlay()
 	}
 	event_gesture_num = Gesture_Event.Num();
 	state_gesture_num = Gesture_NonEvent.Num();
-	//´´½¨¹Ç÷ÀÓ³Éä£»
+	//åˆ›å»ºéª¨éª¼æ˜ å°„ï¼›
 	CreateBoneIndexToBoneNameMap(handBoneNames);
 	// ...
 	if (bIsVREnabled && GetTrackingSystem()) {
@@ -294,7 +294,7 @@ void UGloveComponent::OnConnectGloves()
 	//Connect Data Gloves
 	VRTRIX::PortInfo portInfo;
 	portInfo.IP = std::string(TCHAR_TO_UTF8(*ServerIP));
-	portInfo.port = std::string(TCHAR_TO_UTF8(*Port));
+	portInfo.port = std::to_string(11002 + (int)GloveID);
 	portInfo.type = type;
 	pDataGlove->ConnectDataGlove(eIMUError, portInfo);
 
