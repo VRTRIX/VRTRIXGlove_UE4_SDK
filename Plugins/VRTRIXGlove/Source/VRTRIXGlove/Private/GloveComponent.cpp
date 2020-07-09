@@ -276,6 +276,14 @@ void UGloveComponent::OnConnectGloves()
 		pDataGlove = AdvancedMode ? InitDataGlove(eInitError, VRTRIX::InitMode_Advanced, VRTRIX::PRO):
 									InitDataGlove(eInitError, VRTRIX::InitMode_Normal, VRTRIX::PRO);
 	}
+	else if (HardwareVersion == HardwareVersion::PRO11) {
+		pDataGlove = AdvancedMode ? InitDataGlove(eInitError, VRTRIX::InitMode_Advanced, VRTRIX::PRO11) :
+			InitDataGlove(eInitError, VRTRIX::InitMode_Normal, VRTRIX::PRO11);
+	}
+	else {
+		UE_LOG(LogVRTRIXGlovePlugin, Error, TEXT("[GLOVES PULGIN] Invalid data glove hardware version!"));
+		return;
+	}
 
 	if (eInitError != VRTRIX::InitError_None) {
 		UE_LOG(LogVRTRIXGlovePlugin, Error, TEXT("[GLOVES PULGIN] Unable to init Glove runtime"));
