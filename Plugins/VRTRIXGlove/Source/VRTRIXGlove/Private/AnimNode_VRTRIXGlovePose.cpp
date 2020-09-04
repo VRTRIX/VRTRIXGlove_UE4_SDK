@@ -25,6 +25,16 @@ void FAnimNode_VRTRIXGlovePose::Initialize_AnyThread(const FAnimationInitializeC
 void FAnimNode_VRTRIXGlovePose::Update_AnyThread(const FAnimationUpdateContext & Context)
 {
 	EvaluateGraphExposedInputs.Execute(Context);
+	if (LHGloveComponent == nullptr || RHGloveComponent == nullptr) {
+		TArray<UActorComponent*> Comps = Context.AnimInstanceProxy->GetSkelMeshComponent()->GetAnimInstance()->GetOwningActor()->GetComponentsByClass(UGloveComponent::StaticClass());
+		for (auto& component : Comps)
+		{
+			UGloveComponent* glove = dynamic_cast<UGloveComponent*> (component);
+			if (glove->HandType == Hand::Left) LHGloveComponent = glove;
+			else if (glove->HandType == Hand::Right) RHGloveComponent = glove;
+			//UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Find Glove Component %d."), (int)glove->HandType);
+		}
+	}
 }
 
 void FAnimNode_VRTRIXGlovePose::Evaluate_AnyThread(FPoseContext & Output)
