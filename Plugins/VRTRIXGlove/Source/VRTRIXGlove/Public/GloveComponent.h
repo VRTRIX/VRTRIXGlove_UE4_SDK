@@ -397,6 +397,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "VRTRIX_GLOVES")
 	FTransform ApplyTrackerOffset();
 
+	//Call this function to get corresponded tracker transform on the wrist joint.
+	UFUNCTION(BlueprintCallable, Category = "VRTRIX_GLOVES")
+	FTransform GetTrackerTransform();
+
 	//Call this function to set wrist parent joint for alignment.
 	UFUNCTION(BlueprintCallable, Category = "VRTRIX_GLOVES")
 	void SetWristAlignment(FRotator alignment);

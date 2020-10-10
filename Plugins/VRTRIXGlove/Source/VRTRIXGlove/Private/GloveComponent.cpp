@@ -23,20 +23,6 @@ static FORCEINLINE FMatrix ToFMatrix(const vr::HmdMatrix34_t& tm)
 		FPlane(tm.m[0][3], tm.m[1][3], tm.m[2][3], 1.0f));
 }
 
-IMotionController* UGloveComponent::GetSteamMotionController()
-{
-	static FName DeviceTypeName(TEXT("SteamVRController"));
-	TArray<IMotionController*> MotionControllers = IModularFeatures::Get().GetModularFeatureImplementations<IMotionController>(IMotionController::GetModularFeatureName());
-	for (IMotionController* MotionController : MotionControllers)
-	{
-		if (MotionController->GetMotionControllerDeviceTypeName() == DeviceTypeName)
-		{
-			return MotionController;
-		}
-	}
-	return nullptr;
-}
-
 void UGloveComponent::CreateBoneIndexToBoneNameMap(FHandBonesName names)
 {
 	if (names.IndexInHand != "None" && names.MiddleInHand != "None" && names.RingInHand != "None" && names.PinkyInHand != "None") {
@@ -99,7 +85,7 @@ void UGloveComponent::PerformAlgorithmTuning()
 {
 	VRTRIX::EIMUError error = VRTRIX::IMUError_None;
 	VRTRIX::VRTRIXVector_t offset;
-	
+
 	if (m_ThumbOffset[0] != ThumbOffset[0]) {
 		offset = { ThumbOffset[0].X, ThumbOffset[0].Y, ThumbOffset[0].Z };
 		pDataGlove->AlgorithmTuning(error, VRTRIX::Thumb_Proximal, VRTRIX::AlgorithmConfig_ThumbOffset, 0, offset);
@@ -164,9 +150,9 @@ void UGloveComponent::BeginPlay()
 	m_RHTrackerIndex = 64;
 
 	for (int i = 0; i < 3; i++) {
-		for (int j= 0; j < 3; j++) {
+		for (int j = 0; j < 3; j++) {
 			if (HandType == Hand::Left) {
-				ml_axisoffset.M[j][i] =	AxisOffset[i][j];
+				ml_axisoffset.M[j][i] = AxisOffset[i][j];
 			}
 			else {
 				mr_axisoffset.M[j][i] = AxisOffset[i][j];
@@ -200,13 +186,13 @@ void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 	FingerBendingAngle[4] = GetFingerBendAngle(VRTRIX::Pinky_Intermediate);
 
 	for (int i = 0; i < VRTRIX::Joint_MAX; ++i) {
-		FQuat quat = { pose.imuData[i].qx, pose.imuData[i].qy,pose.imuData[i].qz,pose.imuData[i].qw};
+		FQuat quat = { pose.imuData[i].qx, pose.imuData[i].qy,pose.imuData[i].qz,pose.imuData[i].qw };
 
 		FVector offset_vec = (pose.type == VRTRIX::Hand_Left) ?
 			ml_axisoffset.TransformVector(FVector(quat.X, quat.Y, quat.Z)) :
-			mr_axisoffset.TransformVector(FVector(quat.X, quat.Y, quat.Z)) ;
+			mr_axisoffset.TransformVector(FVector(quat.X, quat.Y, quat.Z));
 		quat = { offset_vec[0], offset_vec[1], offset_vec[2], quat.W };
-		
+
 		if (!bIsVREnabled) {
 			if (pose.type == VRTRIX::Hand_Left && !bIsLOffsetCal && i == (int)VRTRIX::Wrist_Joint && quat != FQuat::Identity) {
 				initialPoseOffset = InitialPoseOffset.Quaternion() * quat.Inverse();
@@ -227,11 +213,11 @@ void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 				FVector tracker_loc;
 				if (USteamVRFunctionLibrary::GetTrackedDevicePositionAndOrientation(m_LHTrackerIndex, tracker_loc, tracker_rot)) {
 					if (!bIsLOffsetCal) {
-			            LWristTrackerPitchOffset = FQuat(FVector::ForwardVector, FMath::DegreesToRadians(tracker_rot.Roll + 90.0f) );
+						LWristTrackerPitchOffset = FQuat(FVector::ForwardVector, FMath::DegreesToRadians(tracker_rot.Roll + 90.0f));
 						UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Left Hand Glove connected to channel: %d"), pose.channel);
 						bIsLOffsetCal = true;
 					}
-					FQuat target =  tracker_rot.Quaternion() * LWristTrackerPitchOffset * WristTrackerRotOffset.Quaternion();
+					FQuat target = tracker_rot.Quaternion() * LWristTrackerPitchOffset * WristTrackerRotOffset.Quaternion();
 					initialPoseOffset = target * quat.Inverse();
 				}
 			}
@@ -240,21 +226,21 @@ void UGloveComponent::OnReceiveNewPose(VRTRIX::Pose pose)
 				FVector tracker_loc;
 				if (USteamVRFunctionLibrary::GetTrackedDevicePositionAndOrientation(m_RHTrackerIndex, tracker_loc, tracker_rot)) {
 					if (!bIsROffsetCal) {
-			            RWristTrackerPitchOffset = FQuat(FVector::ForwardVector, FMath::DegreesToRadians(tracker_rot.Roll - 90.0f)); 
+						RWristTrackerPitchOffset = FQuat(FVector::ForwardVector, FMath::DegreesToRadians(tracker_rot.Roll - 90.0f));
 						UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] Right Hand Glove connected to channel: %d"), pose.channel);
 						bIsROffsetCal = true;
 					}
-					FQuat target =  tracker_rot.Quaternion() * RWristTrackerPitchOffset * WristTrackerRotOffset.Quaternion();
+					FQuat target = tracker_rot.Quaternion() * RWristTrackerPitchOffset * WristTrackerRotOffset.Quaternion();
 					initialPoseOffset = target * quat.Inverse();
 				}
 			}
-		}	
+		}
 
-		rotation[i] = (i == (int)VRTRIX::Wrist_Joint) ? 
-				(initialPoseOffset * quat).Rotator() :
-				(initialPoseOffset * quat * WristFingerOffset.Quaternion()).Rotator();
+		rotation[i] = (i == (int)VRTRIX::Wrist_Joint) ?
+			(initialPoseOffset * quat).Rotator() :
+			(initialPoseOffset * quat * WristFingerOffset.Quaternion()).Rotator();
 	}
-	
+
 	if (ShowDebugInfo) {
 		UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("Bending Angle (Thumb to Pinky): %f, %f, %f, %f, %f"), FingerBendingAngle[0], FingerBendingAngle[1], FingerBendingAngle[2], FingerBendingAngle[3], FingerBendingAngle[4]);
 	}
@@ -269,12 +255,12 @@ void UGloveComponent::OnConnectGloves()
 	VRTRIX::IVRTRIXIMUEventHandler* pEventHandler = new CVRTRIXIMUEventHandler();
 	//Initialize data glove.
 	if (HardwareVersion == HardwareVersion::DK1 || HardwareVersion == HardwareVersion::DK2) {
-		pDataGlove = AdvancedMode ? InitDataGlove(eInitError, VRTRIX::InitMode_Advanced, VRTRIX::DK2):
-									InitDataGlove(eInitError, VRTRIX::InitMode_Normal, VRTRIX::DK2);
+		pDataGlove = AdvancedMode ? InitDataGlove(eInitError, VRTRIX::InitMode_Advanced, VRTRIX::DK2) :
+			InitDataGlove(eInitError, VRTRIX::InitMode_Normal, VRTRIX::DK2);
 	}
 	else if (HardwareVersion == HardwareVersion::PRO) {
-		pDataGlove = AdvancedMode ? InitDataGlove(eInitError, VRTRIX::InitMode_Advanced, VRTRIX::PRO):
-									InitDataGlove(eInitError, VRTRIX::InitMode_Normal, VRTRIX::PRO);
+		pDataGlove = AdvancedMode ? InitDataGlove(eInitError, VRTRIX::InitMode_Advanced, VRTRIX::PRO) :
+			InitDataGlove(eInitError, VRTRIX::InitMode_Normal, VRTRIX::PRO);
 	}
 	else if (HardwareVersion == HardwareVersion::PRO11) {
 		pDataGlove = AdvancedMode ? InitDataGlove(eInitError, VRTRIX::InitMode_Advanced, VRTRIX::PRO11) :
@@ -298,7 +284,7 @@ void UGloveComponent::OnConnectGloves()
 
 	//Register event call back and perform events handling/pose updating.
 	pDataGlove->RegisterIMUDataCallback(pEventHandler, this);
-	
+
 	//Connect Data Gloves
 	VRTRIX::PortInfo portInfo;
 	portInfo.IP = std::string(TCHAR_TO_UTF8(*ServerIP));
@@ -343,7 +329,7 @@ bool UGloveComponent::GetTrackingSystem()
 	vr::HmdError HmdErr;
 	VRSystem = (vr::IVRSystem*)vr::VR_GetGenericInterface(vr::IVRSystem_Version, &HmdErr);
 	VRCompositor = (vr::IVRCompositor*)vr::VR_GetGenericInterface(vr::IVRCompositor_Version, &HmdErr);
-	if(VRSystem == NULL) UE_LOG(LogVRTRIXGlovePlugin, Error, TEXT("[GLOVES PULGIN] Unable to get tracking system."));
+	if (VRSystem == NULL) UE_LOG(LogVRTRIXGlovePlugin, Error, TEXT("[GLOVES PULGIN] Unable to get tracking system."));
 	return (VRSystem != NULL);
 }
 
@@ -431,16 +417,16 @@ void UGloveComponent::GetTrackerIndex()
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 	{
 		//if (VRSystem->GetTrackedDeviceClass(nDevice) == vr::TrackedDeviceClass_GenericTracker) {
-			if (VRSystem->IsTrackedDeviceConnected(nDevice)) {
-				FString renderModel;
-				EBPOVRResultSwitch result;
-				GetVRDevicePropertyString(EVRDeviceProperty_String::Prop_RenderModelName_String_1003, nDevice, renderModel, result);
-				//UE_LOG(LogVRTRIXGlovePlugin, Error, TEXT("[GLOVES PULGIN] renderModel: %s"), *renderModel);
-				if (result == EBPOVRResultSwitch::OnSucceeded) {
-					if (renderModel == "LH") m_LHTrackerIndex = nDevice;
-					if (renderModel == "RH") m_RHTrackerIndex = nDevice;
-				}
+		if (VRSystem->IsTrackedDeviceConnected(nDevice)) {
+			FString renderModel;
+			EBPOVRResultSwitch result;
+			GetVRDevicePropertyString(EVRDeviceProperty_String::Prop_RenderModelName_String_1003, nDevice, renderModel, result);
+			//UE_LOG(LogVRTRIXGlovePlugin, Error, TEXT("[GLOVES PULGIN] renderModel: %s"), *renderModel);
+			if (result == EBPOVRResultSwitch::OnSucceeded) {
+				if (renderModel == "LH") m_LHTrackerIndex = nDevice;
+				if (renderModel == "RH") m_RHTrackerIndex = nDevice;
 			}
+		}
 		//}
 	}
 	UE_LOG(LogVRTRIXGlovePlugin, Display, TEXT("[GLOVES PULGIN] LHIndex: %d"), m_LHTrackerIndex);
@@ -451,8 +437,7 @@ FTransform UGloveComponent::ApplyTrackerOffset()
 {
 	FRotator tracker_rot;
 	FVector tracker_loc;
-	IMotionController* SteamMotionController = GetSteamMotionController();
-	
+
 	switch (type) {
 	case(VRTRIX::Hand_Left): {
 		if (!USteamVRFunctionLibrary::GetTrackedDevicePositionAndOrientation(m_LHTrackerIndex, tracker_loc, tracker_rot)) {
@@ -471,41 +456,46 @@ FTransform UGloveComponent::ApplyTrackerOffset()
 	return FTransform(tracker_rot, new_positon, FVector(1, 1, 1));
 }
 
-void UGloveComponent::SetWristAlignment(FRotator alignment)
-{
-	alignmentPose = alignment.Quaternion();
-}
+FTransform UGloveComponent::GetTrackerTransform() {
+	FRotator tracker_rot;
+	FVector tracker_loc;
 
-EControllerHand UGloveComponent::MapHandtoEControllerHand()
-{
-	EControllerHand hand = EControllerHand::Special_1;
 	switch (type) {
 	case(VRTRIX::Hand_Left): {
-		hand =  (m_LHTrackerIndex < m_RHTrackerIndex) ? EControllerHand::Special_1 : EControllerHand::Special_2;
+		if (!USteamVRFunctionLibrary::GetTrackedDevicePositionAndOrientation(m_LHTrackerIndex, tracker_loc, tracker_rot)) {
+			return FTransform::Identity;
+		}
 		break;
 	}
 	case(VRTRIX::Hand_Right): {
-		hand =  (m_LHTrackerIndex < m_RHTrackerIndex) ? EControllerHand::Special_2 : EControllerHand::Special_1;
+		if (!USteamVRFunctionLibrary::GetTrackedDevicePositionAndOrientation(m_RHTrackerIndex, tracker_loc, tracker_rot)) {
+			return FTransform::Identity;
+		}
 		break;
 	}
 	}
-	return hand;
+	return FTransform(tracker_rot, tracker_loc, FVector(1, 1, 1));
+}
+
+void UGloveComponent::SetWristAlignment(FRotator alignment)
+{
+	alignmentPose = alignment.Quaternion();
 }
 
 void UGloveComponent::Calculate_Gesture_Event()
 {
 	int gesture_index = 0;
 	// Gesture 0
-	if (gesture_index<event_gesture_num)
+	if (gesture_index < event_gesture_num)
 	{
-		if(Gesture_Event[gesture_index].Gesture_State)
-		{		
+		if (Gesture_Event[gesture_index].Gesture_State)
+		{
 			if (!Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
 			{
 				Gesture_Released_0.Broadcast();
 			}
 		}
-		else if(Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
+		else if (Gesture_Event[gesture_index].TriggerPositionCheck(FingerBendingAngle))
 		{
 			Gesture_Triggered_0.Broadcast();
 		}
@@ -513,7 +503,7 @@ void UGloveComponent::Calculate_Gesture_Event()
 	}
 	else { return; }
 	// Gesture 1
-	if (gesture_index<event_gesture_num)
+	if (gesture_index < event_gesture_num)
 	{
 		if (Gesture_Event[gesture_index].Gesture_State)
 		{
@@ -530,7 +520,7 @@ void UGloveComponent::Calculate_Gesture_Event()
 	}
 	else { return; }
 	// Gesture 2
-	if (gesture_index<event_gesture_num)
+	if (gesture_index < event_gesture_num)
 	{
 		if (Gesture_Event[gesture_index].Gesture_State)
 		{
@@ -548,7 +538,7 @@ void UGloveComponent::Calculate_Gesture_Event()
 	}
 	else { return; }
 	// Gesture 3
-	if (gesture_index<event_gesture_num)
+	if (gesture_index < event_gesture_num)
 	{
 		if (Gesture_Event[gesture_index].Gesture_State)
 		{
@@ -566,7 +556,7 @@ void UGloveComponent::Calculate_Gesture_Event()
 	}
 	else { return; }
 	// Gesture 4
-	if (gesture_index<event_gesture_num)
+	if (gesture_index < event_gesture_num)
 	{
 		if (Gesture_Event[gesture_index].Gesture_State)
 		{
@@ -584,7 +574,7 @@ void UGloveComponent::Calculate_Gesture_Event()
 	}
 	else { return; }
 	// Gesture 5
-	if (gesture_index<event_gesture_num)
+	if (gesture_index < event_gesture_num)
 	{
 		if (Gesture_Event[gesture_index].Gesture_State)
 		{
@@ -602,7 +592,7 @@ void UGloveComponent::Calculate_Gesture_Event()
 	}
 	else { return; }
 	// Gesture 6
-	if (gesture_index<event_gesture_num)
+	if (gesture_index < event_gesture_num)
 	{
 		if (Gesture_Event[gesture_index].Gesture_State)
 		{
@@ -620,7 +610,7 @@ void UGloveComponent::Calculate_Gesture_Event()
 	}
 	else { return; }
 	// Gesture 7
-	if (gesture_index<event_gesture_num)
+	if (gesture_index < event_gesture_num)
 	{
 		if (Gesture_Event[gesture_index].Gesture_State)
 		{
