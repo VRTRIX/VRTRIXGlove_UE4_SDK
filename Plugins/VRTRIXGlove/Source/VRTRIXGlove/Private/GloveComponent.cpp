@@ -115,7 +115,7 @@ void UGloveComponent::PerformAlgorithmTuning()
 	}
 
 	if (m_FingerSpacing != FingerSpacing) {
-		pDataGlove->AlgorithmTuning(error, VRTRIX::Wrist_Joint, VRTRIX::AlgorithmConfig_FingerSpcaing, FingerSpacing);
+		pDataGlove->AlgorithmTuning(error, VRTRIX::Wrist_Joint, VRTRIX::AlgorithmConfig_FingerSpacing, FingerSpacing);
 		m_FingerSpacing = FingerSpacing;
 	}
 
@@ -372,7 +372,7 @@ void UGloveComponent::OrientationAlignment()
 		bIsROffsetCal = false;
 	}
 	VRTRIX::EIMUError error;
-	pDataGlove->SoftwareAlign(error);
+	pDataGlove->TPoseCalibration(error);
 }
 
 void UGloveComponent::ApplyHandMoCapWorldSpaceRotation(UPoseableMeshComponent *SkinMesh, FRotator alignment)
