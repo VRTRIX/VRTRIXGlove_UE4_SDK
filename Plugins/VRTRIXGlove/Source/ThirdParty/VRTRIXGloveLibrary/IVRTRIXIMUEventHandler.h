@@ -144,7 +144,7 @@ namespace VRTRIX {
 		AlgorithmConfig_ProximalSlerpDown,
 		AlgorithmConfig_DistalSlerpUp,
 		AlgorithmConfig_DistalSlerpDown,
-		AlgorithmConfig_FingerSpcaing,
+		AlgorithmConfig_FingerSpacing,
 		AlgorithmConfig_FingerBendUpThreshold,
 		AlgorithmConfig_FingerBendDownThreshold,
 		AlgorithmConfig_ThumbOffset,

@@ -69,7 +69,7 @@ namespace VRTRIX
 		* @param eError: return the error during software alignment, if any.
 		* @returns void
 		*/
-		virtual void SoftwareAlign(EIMUError &eError) = 0;
+		virtual void TPoseCalibration(EIMUError &eError) = 0;
 
 		/** Switch to advanced mode during runtime
 		*
@@ -103,6 +103,14 @@ namespace VRTRIX
 		* @returns void
 		*/
 		virtual void ChannelHopping(EIMUError & eError, int channel) = 0;
+
+		/** Set Reference Wrist Pose for External Sensor Fusion (ESF)
+		*
+		* @param eError: return the error during set ref pose, if any.
+		* @param channel: reference pose in quaternion.
+		* @returns void
+		*/
+		virtual void SetRefPose(EIMUError & eError, VRTRIXQuaternion_t refPose) = 0;
 
 		/** Slerp algorithm tuning
 		*
